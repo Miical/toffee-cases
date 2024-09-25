@@ -9,7 +9,7 @@ from enum import Enum
 
 class SimpleBusCMD():
     Read, Write, ReadBurst, WriteBurst, WriteLast, Probe, Prefetch = 0, 1, 2, 3, 7, 8, 4
-    ReadResp, WriteResp, ProbeHit, ProbMiss = 6, 5, 12, 8
+    ReadLast, WriteResp, ProbeHit, ProbMiss = 6, 5, 12, 8
 
 class DecoupledBundle(Bundle):
     ready, valid = Signals(2)
@@ -62,31 +62,35 @@ class SimpleBusMasterAgent(Agent):
     @driver_method()
     async def write(self, addr, size, wdata, wmask, user=0):
         await self.send_req(addr, size, SimpleBusCMD.Write, user, wmask, wdata)
-        # return await self.get_resp()
+        return await self.get_resp()
 
 class SimpleBusSlaveAgent(Agent):
     def __init__(self, bundle):
         super().__init__(bundle.step)
         self.bundle: SimpleBusBundle = bundle
 
-    async def send_resp(self, cmd, rdata, user=0):
+    @driver_method()
+    async def read_resp(self, size, rdata: list, user=0):
+        assert len(rdata) == 1 << size
+
+        await AllValid(self.bundle.resp.ready, delay=0)
+        self.bundle.resp.valid.value = 1
+        for i in range(1 << size):
+            self.bundle.resp.cmd.value = SimpleBusCMD.ReadLast if (i == ((1 << size) - 1)) else SimpleBusCMD.Read
+            self.bundle.resp.rdata.value = rdata[i]
+            await self.bundle.step()
+        self.bundle.resp.valid.value = 0
+
+    @driver_method()
+    async def write_resp(self, user=0):
         await AllValid(self.bundle.resp.ready, delay=0)
         self.bundle.resp.assign({
             "valid": 1,
-            "cmd": cmd,
-            "rdata": rdata,
+            "cmd": SimpleBusCMD.WriteResp,
             "user": user
         })
         await self.bundle.step()
         self.bundle.resp.valid.value = 0
-
-    @driver_method()
-    async def read_resp(self, rdata, user=0):
-        await self.send_resp(SimpleBusCMD.ReadResp, rdata, user)
-
-    @driver_method()
-    async def write_resp(self, user=0):
-        await self.send_resp(SimpleBusCMD.WriteResp, 0, user)
 
     @driver_method()
     async def get_req(self):

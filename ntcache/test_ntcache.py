@@ -20,11 +20,14 @@ def start_func(mlvp_pre_request: PreRequest):
         return NTCacheEnv(dut)
     return start_code
 
-
 async def memory_task(mem_agent: SimpleBusSlaveAgent):
     while True:
         req = await mem_agent.get_req()
-        await mem_agent.send_resp(SimpleBusCMD.WriteResp, 0)
+        if req["cmd"] == SimpleBusCMD.Read or req["cmd"] == SimpleBusCMD.ReadBurst:
+            data = [0x1234] * (1 << req["size"])
+            await mem_agent.read_resp(req["size"], data)
+        elif req["cmd"] == SimpleBusCMD.Write or req["cmd"] == SimpleBusCMD.WriteBurst:
+            await mem_agent.send_resp(SimpleBusCMD.WriteResp, 0)
 
 @pytest.mark.mlvp_async
 async def test_read(start_func):
