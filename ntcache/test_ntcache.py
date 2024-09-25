@@ -32,7 +32,9 @@ async def memory_task(mem_agent: SimpleBusSlaveAgent):
 @pytest.mark.mlvp_async
 async def test_read(start_func):
     env = await start_func()
-
-    async with Executor(exit="any") as exec:
+    async with Executor(exit="none") as exec:
         exec(memory_task(env.mem_agent))
-        exec(env.in_agent.write(0x80000000, 4, 0x1234, 0xf, 0))
+        exec(memory_task(env.mmio_agent))
+
+    await env.in_agent.write(0x80000000, 4, 0x1234, 0xf, 555)
+    await env.in_agent.read(0x80000000, 1, 666)

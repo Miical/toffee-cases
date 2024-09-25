@@ -8,6 +8,6 @@ class NTCacheEnv(Env):
         mem_bundle = SimpleBusBundle.from_prefix("io_out_mem_").set_name("mem").bind(dut)
         mmio_bundle = SimpleBusBundle.from_prefix("io_mmio_").set_name("mmio").bind(dut)
 
-        self.in_agent: SimpleBusMasterAgent = SimpleBusMasterAgent(in_bundle)
-        self.mem_agent: SimpleBusSlaveAgent = SimpleBusSlaveAgent(mem_bundle)
-        self.mmio_agent: SimpleBusSlaveAgent = SimpleBusSlaveAgent(mmio_bundle)
+        self.in_agent = SimpleBusMasterAgent(in_bundle)
+        self.mem_agent = SimpleBusSlaveAgent(mem_bundle)
+        self.mmio_agent= SimpleBusSlaveAgent(mmio_bundle)

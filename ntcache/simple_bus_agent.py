@@ -56,7 +56,7 @@ class SimpleBusMasterAgent(Agent):
 
     @driver_method()
     async def read(self, addr, size, user=0):
-        self.send_req(addr, size, SimpleBusCMD.Read, user)
+        await self.send_req(addr, size, SimpleBusCMD.Read, user)
         return await self.get_resp()
 
     @driver_method()
