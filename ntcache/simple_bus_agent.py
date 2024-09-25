@@ -7,7 +7,7 @@ SimpleBusBundle
 """
 from enum import Enum
 
-class SimpleBusCMD(Enum):
+class SimpleBusCMD():
     Read, Write, ReadBurst, WriteBurst, WriteLast, Probe, Prefetch = 0, 1, 2, 3, 7, 8, 4
     ReadResp, WriteResp, ProbeHit, ProbMiss = 6, 5, 12, 8
 
@@ -21,19 +21,20 @@ class SimpleBusResponseBundle(DecoupledBundle):
     cmd, rdata, user = Signals(3)
 
 class SimpleBusBundle(Bundle):
-    req = SimpleBusRequestBundle.from_regex(r"req_(?:(valid|ready)|bits_(.*))")
-    resp = SimpleBusResponseBundle.from_regex(r"resp_(?:(valid|ready)|bits_(.*))")
+    req = SimpleBusRequestBundle.from_regex(r"^req_(?:(valid|ready)|bits_(.*))")
+    resp = SimpleBusResponseBundle.from_regex(r"^resp_(?:(valid|ready)|bits_(.*))")
 
 """
 SimpleBusAgent
 """
 
-class SimpleBusAgent(Agent):
+class SimpleBusMasterAgent(Agent):
     def __init__(self, bundle):
         super().__init__(bundle.step)
         self.bundle: SimpleBusBundle = bundle
 
     async def send_req(self, addr, size, cmd, user=0, wmask=0, wdata=0):
+        await AllValid(self.bundle.req.ready, delay=0)
         self.bundle.req.assign({
             "valid": 1,
             "addr": addr,
@@ -43,7 +44,7 @@ class SimpleBusAgent(Agent):
             "wmask": wmask,
             "wdata": wdata
         })
-        await AllValid(self.bundle.req.ready)
+        await self.bundle.step()
         self.bundle.req.valid.value = 0
 
     async def get_resp(self):
@@ -60,5 +61,37 @@ class SimpleBusAgent(Agent):
 
     @driver_method()
     async def write(self, addr, size, wdata, wmask, user=0):
-        self.send_req(addr, size, SimpleBusCMD.Write, user, wmask, wdata)
-        return await self.get_resp()
+        await self.send_req(addr, size, SimpleBusCMD.Write, user, wmask, wdata)
+        # return await self.get_resp()
+
+class SimpleBusSlaveAgent(Agent):
+    def __init__(self, bundle):
+        super().__init__(bundle.step)
+        self.bundle: SimpleBusBundle = bundle
+
+    async def send_resp(self, cmd, rdata, user=0):
+        await AllValid(self.bundle.resp.ready, delay=0)
+        self.bundle.resp.assign({
+            "valid": 1,
+            "cmd": cmd,
+            "rdata": rdata,
+            "user": user
+        })
+        await self.bundle.step()
+        self.bundle.resp.valid.value = 0
+
+    @driver_method()
+    async def read_resp(self, rdata, user=0):
+        await self.send_resp(SimpleBusCMD.ReadResp, rdata, user)
+
+    @driver_method()
+    async def write_resp(self, user=0):
+        await self.send_resp(SimpleBusCMD.WriteResp, 0, user)
+
+    @driver_method()
+    async def get_req(self):
+        self.bundle.req.ready.value = 1
+        await AllValid(self.bundle.req.valid)
+        req = self.bundle.req.as_dict()
+        self.bundle.req.ready.value = 0
+        return req
