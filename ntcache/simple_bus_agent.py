@@ -57,12 +57,14 @@ class SimpleBusMasterAgent(Agent):
     @driver_method()
     async def read(self, addr, size, user=0):
         await self.send_req(addr, size, SimpleBusCMD.Read, user)
-        return await self.get_resp()
+        resp = await self.get_resp()
+        return {key:resp[key] for key in ["rdata", "user"]}
 
     @driver_method()
     async def write(self, addr, size, wdata, wmask, user=0):
         await self.send_req(addr, size, SimpleBusCMD.Write, user, wmask, wdata)
-        return await self.get_resp()
+        resp = await self.get_resp()
+        return {key:resp[key] for key in ["user"]}
 
 class SimpleBusSlaveAgent(Agent):
     def __init__(self, bundle):

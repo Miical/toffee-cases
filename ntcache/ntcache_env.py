@@ -1,4 +1,5 @@
 from simple_bus_agent import *
+from cache_ref import CacheRefModel
 from mlvp.env import *
 
 class NTCacheEnv(Env):
@@ -11,3 +12,5 @@ class NTCacheEnv(Env):
         self.in_agent = SimpleBusMasterAgent(in_bundle)
         self.mem_agent = SimpleBusSlaveAgent(mem_bundle)
         self.mmio_agent= SimpleBusSlaveAgent(mmio_bundle)
+
+        self.attach(CacheRefModel())
