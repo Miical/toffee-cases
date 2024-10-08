@@ -80,19 +80,7 @@ module top_tb;
     initial begin
         reset = 1;
         @(posedge clock);
-        @(posedge clock);
         reset = 0;
-        in_if.print();
-
-        @(posedge clock);
-        @(posedge clock);
-        @(posedge clock);
-        in_if.print();
-
-        @(posedge in_if.req_ready);
-        in_if.print();
-
-        $finish;
     end
 
 
@@ -119,6 +107,7 @@ module top_tb;
     /* Configuration */
     initial begin
         uvm_config_db#(virtual simplebus_if)::set(null, "uvm_test_top.env.in_agent.drv", "bif", in_if);
+        uvm_config_db#(virtual simplebus_if)::set(null, "uvm_test_top.env.mem_agent.drv", "bif", mem_if);
     end
 
 

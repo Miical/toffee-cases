@@ -1,12 +1,12 @@
-`ifndef SIMPLEBUS_MASTER_AGENT__SV
-`define SIMPLEBUS_MASTER_AGENT__SV
+`ifndef SIMPLEBUS_SLAVE_AGENT__SV
+`define SIMPLEBUS_SLAVE_AGENT__SV
 
-`include "simplebus/master_agent/simplebus_master_driver.sv"
-`include "simplebus/master_agent/simplebus_master_sequencer.sv"
+`include "simplebus/slave_agent/simplebus_slave_driver.sv"
+`include "simplebus/slave_agent/simplebus_slave_sequencer.sv"
 
-class simplebus_master_agent extends uvm_agent;
-    simplebus_master_sequencer sqr;
-    simplebus_master_driver drv;
+class simplebus_slave_agent extends uvm_agent;
+    simplebus_slave_sequencer sqr;
+    simplebus_slave_driver drv;
     // bus_monitor mon;
 
     // uvm_analysis_port #(bus_seq_item) ap;
@@ -20,8 +20,8 @@ class simplebus_master_agent extends uvm_agent;
 
         if (is_active == UVM_ACTIVE) begin
             `uvm_info(get_type_name(), "ACTIVE", UVM_MEDIUM)
-            sqr = simplebus_master_sequencer::type_id::create("sqr", this);
-            drv = simplebus_master_driver::type_id::create("drv", this);
+            sqr = simplebus_slave_sequencer::type_id::create("sqr", this);
+            drv = simplebus_slave_driver::type_id::create("drv", this);
         end
         // mon = bus_monitor::type_id::create("mon", this);
     endfunction
@@ -34,7 +34,7 @@ class simplebus_master_agent extends uvm_agent;
         // ap = mon.ap;
     endfunction
 
-    `uvm_component_utils(simplebus_master_agent)
+    `uvm_component_utils(simplebus_slave_agent)
 endclass;
 
 `endif

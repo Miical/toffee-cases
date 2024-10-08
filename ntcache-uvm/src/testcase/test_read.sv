@@ -21,6 +21,14 @@ class test_read_sequence extends uvm_sequence #(simplebus_item);
             req_addr[31:28] != 4'b0011;
         });
         `uvm_info("in_seq", "send transaction", UVM_HIGH);
+
+        tr.print();
+        get_response(rsp);
+        rsp.print();
+
+        #100
+        if (starting_phase != null)
+            starting_phase.drop_objection(this);
     endtask
 endclass
 

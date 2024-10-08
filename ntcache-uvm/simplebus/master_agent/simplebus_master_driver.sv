@@ -24,13 +24,14 @@ class simplebus_master_driver extends uvm_driver#(simplebus_item);
         forever begin
             seq_item_port.get_next_item(item);
             assert (item.tr_type == simplebus_item::REQ);
-
-            driver_one_pkt(item);
+            driver_one_pkt();
+            get_response();
+            seq_item_port.put_response(item);
             seq_item_port.item_done();
         end
     endtask
 
-    task driver_one_pkt(simplebus_item item);
+    task driver_one_pkt();
         @(posedge bif.req_ready);
 
         bif.req_valid <= 1'b1;
@@ -43,9 +44,24 @@ class simplebus_master_driver extends uvm_driver#(simplebus_item);
 
         @(posedge bif.clock);
         bif.req_valid <= 1'b0;
+        `uvm_info(get_type_name(), "sent request", UVM_MEDIUM);
     endtask
 
-endclass
+    task get_response();
+        bif.resp_ready <= 1'b1;
+        @(posedge bif.resp_valid);
+        bif.resp_ready <= 1'b0;
 
+        item.tr_type <= simplebus_item::RESP;
+        item.resp_user <= bif.resp_user;
+        item.resp_cmd  <= bif.resp_cmd;
+        foreach (item.resp_rdata[i]) begin
+            item.resp_rdata[i] <= 0;
+        end
+        item.resp_rdata[0] <= bif.resp_rdata;
+
+        `uvm_info(get_type_name(), "got response", UVM_HIGH);
+    endtask
+endclass
 
 `endif
