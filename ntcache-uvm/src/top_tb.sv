@@ -5,6 +5,8 @@ import uvm_pkg::*;
 
 `include "simplebus/simplebus_if.sv"
 `include "src/env/cache_env.sv"
+`include "src/testcase/base_test.sv"
+`include "src/testcase/test_read.sv"
 
 module top_tb;
 
@@ -71,9 +73,6 @@ module top_tb;
 
     /* Start UVM*/
     initial begin
-        cache_env env;
-        env = cache_env::type_id::create("env", null);
-
         run_test();
     end
 
@@ -89,7 +88,6 @@ module top_tb;
         @(posedge clock);
         @(posedge clock);
         in_if.print();
-        $display("ok");
 
         @(posedge in_if.req_ready);
         in_if.print();
@@ -120,7 +118,7 @@ module top_tb;
 
     /* Configuration */
     initial begin
-        uvm_config_db#(virtual simplebus_if)::set(null, "uvm_test_top.in_agent.drv", "bif", in_if);
+        uvm_config_db#(virtual simplebus_if)::set(null, "uvm_test_top.env.in_agent.drv", "bif", in_if);
     end
 
 

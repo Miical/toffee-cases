@@ -1,7 +1,7 @@
 `ifndef SIMPLEBUS__IF
 `define SIMPLEBUS__IF
 
-interface simplebus_if(input clk, input rst);
+interface simplebus_if(input clock, input reset);
     logic        req_ready;
     logic        req_valid;
     logic [31:0] req_addr;
