@@ -25,6 +25,7 @@ class simplebus_master_driver extends uvm_driver#(simplebus_item);
             seq_item_port.get_next_item(item);
             assert (item.tr_type == simplebus_item::REQ);
             driver_one_pkt();
+            $display("12345");
             get_response();
             seq_item_port.put_response(item);
             seq_item_port.item_done();

@@ -14,6 +14,7 @@ class simplebus_item extends uvm_sequence_item;
 
     rand bit [3:0]  resp_cmd;
     rand bit [15:0] resp_user;
+    rand bit [2:0] resp_size;
     rand bit [63:0] resp_rdata[8];
 
     `uvm_object_utils_begin(simplebus_item)
@@ -28,6 +29,7 @@ class simplebus_item extends uvm_sequence_item;
         else if (tr_type == RESP) begin
             `uvm_field_int(resp_cmd, UVM_ALL_ON)
             `uvm_field_int(resp_user, UVM_ALL_ON)
+            `uvm_field_int(resp_size, UVM_ALL_ON)
             `uvm_field_sarray_int(resp_rdata, UVM_ALL_ON)
         end
         `uvm_field_enum(Type, tr_type, UVM_NOPACK)
