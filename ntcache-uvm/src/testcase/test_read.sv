@@ -14,20 +14,17 @@ class test_read_sequence extends uvm_sequence #(simplebus_item);
         if (starting_phase != null)
             starting_phase.raise_objection(this);
 
-        $display("okkkkkkk0");
-        `uvm_do_with(tr, {
-            tr_type         == simplebus_item::REQ;
-            req_cmd         == 4'b0000;
-            req_addr[31:30] != 2'b01;
-            req_addr[31:28] != 4'b0011;
-        });
-        `uvm_info("in_seq", "send transaction", UVM_HIGH);
+        for (int i = 0; i < 1000; i++) begin
+            `uvm_do_with(tr, {
+                tr_type         == simplebus_item::REQ;
+                req_cmd         == 4'b0000;
+                req_addr[31:30] != 2'b01;
+                req_addr[31:28] != 4'b0011;
+            });
+            `uvm_info("in_seq", "send transaction", UVM_HIGH);
 
-        tr.print();
-        $display("okkkkkkk1");
-        get_response(rsp);
-        $display("okkkkkkk2");
-        rsp.print();
+            get_response(rsp);
+        end
 
         #100
         if (starting_phase != null)

@@ -7,11 +7,12 @@ CM_NAME = -cm_name simv
 CM_DIR = -cm_dir ./covdir.vdb
 
 VCS_OPTS = -full64 -debug_all -sverilog +define+UVM_NO_DEPRECATED -CFLAGS -DVCS \
-		   -timescale=1ns/1ps -f filelist.f -fsdb +fst\
+		   -timescale=1ns/1ps -f filelist.f\
 		   $(CM) $(CM_NAME) $(CM_DIR)
 SIMV_OPTS = +UVM_VERBOSITY=$(VERBOSITY) \
+	           +vcs+dumpvars+Cache.vcd \
 		   $(CM) $(CM_NAME) $(CM_DIR) \
-		   +UVM_TESTNAME=$(TESTCASE) +fst
+		   +UVM_TESTNAME=$(TESTCASE)
 
 BUILD_SR = vsrc/Cache.v src/ simplebus/ filelist.f
 

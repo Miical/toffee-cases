@@ -12,6 +12,7 @@ module top_tb;
 
     reg clock;
     reg reset;
+    reg [1:0] flush;
 
     simplebus_if in_if(clock, reset);
     simplebus_if mem_if(clock, reset);
@@ -20,6 +21,7 @@ module top_tb;
 
     Cache cache(.clock(clock),
                 .reset(reset),
+                .io_flush(flush),
 
                 .io_in_req_ready(in_if.req_ready),
                 .io_in_req_valid(in_if.req_valid),
@@ -81,10 +83,17 @@ module top_tb;
         reset = 1;
         @(posedge clock);
         reset = 0;
+
+        // for (int i = 0; i < 1000; i++) begin
+        //     @(posedge clock);
+        // end
+        // $finish;
     end
 
 
     initial begin
+        flush = 2'b00;
+
         in_if.req_valid <= 1'b0;
         in_if.req_addr <= 32'h00000000;
         in_if.req_size <= 2'b00;
@@ -92,16 +101,28 @@ module top_tb;
         in_if.req_wmask <= 8'b00000000;
         in_if.req_wdata <= 64'h0000000000000000;
         in_if.req_user <= 16'h0000;
-        in_if.resp_ready <= 1'b1;
+        in_if.resp_ready <= 1'b0;
 
-        mem_if.req_ready <= 1'b1;
+        mem_if.req_ready <= 1'b0;
         mem_if.resp_valid <= 1'b0;
+        mem_if.resp_cmd <= 4'b0000;
+        mem_if.resp_rdata <= 64'h0000000000000000;
+        mem_if.resp_user <= 16'h0000;
 
-        mmio_if.req_ready <= 1'b1;
+        mmio_if.req_ready <= 1'b0;
         mmio_if.resp_valid <= 1'b0;
+        mmio_if.resp_cmd <= 4'b0000;
+        mmio_if.resp_rdata <= 64'h0000000000000000;
+        mmio_if.resp_user <= 16'h0000;
 
-        coh_if.resp_ready <= 1'b1;
+        coh_if.resp_ready <= 1'b0;
         coh_if.req_valid <= 1'b0;
+        coh_if.req_addr <= 32'h00000000;
+        coh_if.req_size <= 2'b00;
+        coh_if.req_cmd <= 4'b0000;
+        coh_if.req_wmask <= 8'b00000000;
+        coh_if.req_wdata <= 64'h0000000000000000;
+        coh_if.req_user <= 16'h0000;
     end
 
     /* Configuration */
@@ -121,8 +142,8 @@ module top_tb;
 
     /* Dump waveform */
     initial begin
-        $dumpfile("Cache.fst");
-        $dumpvars(0, "top_tb");
+        $dumpfile("Cache.vcd");
+        $dumpvars(0, top_tb);
     end
 
 endmodule

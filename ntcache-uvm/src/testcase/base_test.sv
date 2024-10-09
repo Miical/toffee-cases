@@ -11,6 +11,45 @@ class memory_sequence extends uvm_sequence #(simplebus_item);
         super.new(name);
     endfunction
 
+    function replicate_bits(int binary_num, int replication, int num_bits);
+        int result = 0;
+        for (int i = 0; i < num_bits; i++) begin
+            int b = (binary_num >> i) & 1;
+            for (int j = 0; j < replication; j++) begin
+                result = result | (b << (i * replication + j));
+            end
+        end
+        return result;
+    endfunction
+
+    task response_write_burst(simplebus_item req);
+        int addr, wdata, wmask;
+        addr = req.req_addr;
+        while (1) begin
+            wdata = req.req_wdata;
+            wmask = req.req_wmask;
+            wmask = replicate_bits(wmask, 8, 8);
+            if (!(data.exists(addr))) begin
+                data[addr] = 0;
+            end
+            data[addr] = (data[addr] & (~wmask)) | (wdata & wmask);
+            `uvm_do_with(tr, {
+                tr_type == simplebus_item::RESP;
+                resp_cmd == 4'b0101;
+                resp_user == req.req_user;
+            });
+
+            if (req.req_cmd == 4'b0111)
+                break;
+
+            `uvm_do_with(tr, {
+                tr_type == simplebus_item::GET_REQ;
+            });
+            get_response(req);
+            addr += 8;
+        end
+    endtask
+
     task response_once();
         `uvm_do_with(tr, {tr_type == simplebus_item::GET_REQ;});
         get_response(rsp);
@@ -32,8 +71,26 @@ class memory_sequence extends uvm_sequence #(simplebus_item);
             `uvm_send(tr)
         end
 
-        `uvm_info("mem_seq", "rsp print", UVM_MEDIUM);
-        rsp.print();
+        else if (rsp.req_cmd == 4'b0011) begin
+            response_write_burst(rsp);
+        end
+
+        else if (rsp.req_cmd == 4'b0001) begin
+            int addr, wdata, wmask;
+            addr = rsp.req_addr & 32'hfffffff8;
+            wdata = rsp.req_wdata;
+            wmask = rsp.req_wmask;
+            wmask = replicate_bits(wmask, 8, 8);
+            if (!(data.exists(addr))) begin
+                data[addr] = 0;
+            end
+            data[addr] = (data[addr] & (~wmask)) | (wdata & wmask);
+            `uvm_do_with(tr, {
+                tr_type == simplebus_item::RESP;
+                resp_cmd == 4'b0101;
+                resp_user == rsp.req_user;
+            });
+        end
     endtask
 
     virtual task body();

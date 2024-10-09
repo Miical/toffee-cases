@@ -37,17 +37,12 @@ class simplebus_slave_driver extends uvm_driver#(simplebus_item);
             seq_item_port.get_next_item(item);
             `uvm_info(get_type_name(), "get response", UVM_MEDIUM);
             assert (item.tr_type == simplebus_item::RESP);
-            `uvm_info(get_type_name(), "ok", UVM_MEDIUM);
-            item.print();
             driver_one_pkt(is_read_req);
-            `uvm_info(get_type_name(), "ok2", UVM_MEDIUM);
             seq_item_port.item_done();
-            `uvm_info(get_type_name(), "ok3", UVM_MEDIUM);
         end
     endtask
 
     task driver_one_pkt(int is_read_req);
-        $display("is_read_req = %0d", is_read_req);
         if (is_read_req) begin
             // Read Response
             while (!bif.resp_ready) begin
@@ -56,7 +51,6 @@ class simplebus_slave_driver extends uvm_driver#(simplebus_item);
 
             bif.resp_valid <= 1'b1;
             for (int i = 0; i < (1 << item.resp_size); i++) begin
-                $display("i = %0d", i);
                 bif.resp_cmd <= (i == ((1 << item.resp_size) - 1)) ? 4'b0110 : 4'b0000;
                 bif.resp_rdata <= item.resp_rdata[i];
 

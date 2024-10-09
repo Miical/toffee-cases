@@ -25,7 +25,6 @@ class simplebus_master_driver extends uvm_driver#(simplebus_item);
             seq_item_port.get_next_item(item);
             assert (item.tr_type == simplebus_item::REQ);
             driver_one_pkt();
-            $display("12345");
             get_response();
             seq_item_port.put_response(item);
             seq_item_port.item_done();
@@ -50,7 +49,9 @@ class simplebus_master_driver extends uvm_driver#(simplebus_item);
 
     task get_response();
         bif.resp_ready <= 1'b1;
-        @(posedge bif.resp_valid);
+        while (!bif.resp_valid) begin
+            @(posedge bif.clock);
+        end
         bif.resp_ready <= 1'b0;
 
         item.tr_type <= simplebus_item::RESP;
