@@ -1,4 +1,4 @@
-TESTCASE = test_write
+TESTCASE = test_read_write
 VERBOSITY = UVM_MEDIUM
 
 # code coverage command

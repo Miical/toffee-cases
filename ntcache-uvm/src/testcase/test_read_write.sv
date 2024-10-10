@@ -1,12 +1,12 @@
-`ifndef TEST_WRITE__SV
-`define TEST_WRITE__SV
+`ifndef TEST_READ_WRITE__SV
+`define TEST_READ_WRITE__SV
 
-class test_write_sequence extends uvm_sequence #(simplebus_item);
-    `uvm_object_utils(test_write_sequence)
+class test_read_write_sequence extends uvm_sequence #(simplebus_item);
+    `uvm_object_utils(test_read_write_sequence)
 
     simplebus_item tr;
 
-    function new(string name = "test_write_sequence");
+    function new(string name = "test_read_write_sequence");
         super.new(name);
     endfunction
 
@@ -22,7 +22,14 @@ class test_write_sequence extends uvm_sequence #(simplebus_item);
                 req_addr[31:28] != 4'b0011;
             });
             `uvm_info("in_seq", "send transaction", UVM_HIGH);
+            get_response(rsp);
 
+            `uvm_do_with(tr, {
+                tr_type  == simplebus_item::REQ;
+                req_cmd  == READ_CMD;
+                req_addr == tr.req_addr;
+            });
+            `uvm_info("in_seq", "send transaction", UVM_HIGH);
             get_response(rsp);
         end
 
@@ -33,10 +40,10 @@ class test_write_sequence extends uvm_sequence #(simplebus_item);
 endclass
 
 
-class test_write extends base_test;
-    `uvm_component_utils(test_write)
+class test_read_write extends base_test;
+    `uvm_component_utils(test_read_write)
 
-    function new(string name = "test_write", uvm_component parent = null);
+    function new(string name = "test_read_write", uvm_component parent = null);
         super.new(name, parent);
     endfunction
 
@@ -45,7 +52,7 @@ class test_write extends base_test;
         uvm_config_db#(uvm_object_wrapper)::set(this,
                                                 "env.in_agent.sqr.main_phase",
                                                 "default_sequence",
-                                                test_write_sequence::type_id::get());
+                                                test_read_write_sequence::type_id::get());
     endfunction
 endclass
 

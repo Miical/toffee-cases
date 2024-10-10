@@ -8,6 +8,7 @@ import uvm_pkg::*;
 `include "src/testcase/base_test.sv"
 `include "src/testcase/test_read.sv"
 `include "src/testcase/test_write.sv"
+`include "src/testcase/test_read_write.sv"
 
 module top_tb;
 
