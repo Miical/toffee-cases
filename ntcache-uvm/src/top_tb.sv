@@ -7,6 +7,7 @@ import uvm_pkg::*;
 `include "src/env/cache_env.sv"
 `include "src/testcase/base_test.sv"
 `include "src/testcase/test_read.sv"
+`include "src/testcase/test_write.sv"
 
 module top_tb;
 
@@ -84,7 +85,7 @@ module top_tb;
         @(posedge clock);
         reset = 0;
 
-        // for (int i = 0; i < 1000; i++) begin
+        // for (int i = 0; i < 2000; i++) begin
         //     @(posedge clock);
         // end
         // $finish;

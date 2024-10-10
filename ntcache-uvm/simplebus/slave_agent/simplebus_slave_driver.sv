@@ -57,15 +57,17 @@ class simplebus_slave_driver extends uvm_driver#(simplebus_item);
                 @(posedge bif.clock);
             end
             bif.resp_valid <= 1'b0;
+            @(posedge bif.clock);
         end
         else begin
             // Write Response
             while (!bif.resp_ready) begin
                 @(posedge bif.clock);
             end
+
             bif.resp_valid <= 1'b1;
-            bif.resp_cmd  <= 4'b0101;
-            bif.resp_user <= item.resp_user;
+            bif.resp_cmd   <= WRITE_RESP_CMD;
+            bif.resp_user  <= item.resp_user;
 
             @(posedge bif.clock);
             bif.resp_valid <= 1'b0;
@@ -74,9 +76,10 @@ class simplebus_slave_driver extends uvm_driver#(simplebus_item);
 
     task get_request();
         bif.req_ready <= 1'b1;
-        while (!bif.req_valid) begin
+        do
             @(posedge bif.clock);
-        end
+        while (!bif.req_valid);
+
         bif.req_ready <= 1'b0;
 
         item.tr_type   = simplebus_item::REQ;

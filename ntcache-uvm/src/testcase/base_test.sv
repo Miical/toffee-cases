@@ -35,16 +35,14 @@ class memory_sequence extends uvm_sequence #(simplebus_item);
             data[addr] = (data[addr] & (~wmask)) | (wdata & wmask);
             `uvm_do_with(tr, {
                 tr_type == simplebus_item::RESP;
-                resp_cmd == 4'b0101;
+                resp_cmd == WRITE_RESP_CMD;
                 resp_user == req.req_user;
             });
 
-            if (req.req_cmd == 4'b0111)
+            if (req.req_cmd == WRITE_LAST_CMD)
                 break;
 
-            `uvm_do_with(tr, {
-                tr_type == simplebus_item::GET_REQ;
-            });
+            `uvm_do_with(tr, { tr_type == simplebus_item::GET_REQ; });
             get_response(req);
             addr += 8;
         end
@@ -54,10 +52,9 @@ class memory_sequence extends uvm_sequence #(simplebus_item);
         `uvm_do_with(tr, {tr_type == simplebus_item::GET_REQ;});
         get_response(rsp);
 
-        if (rsp.req_cmd == 4'b0010 || rsp.req_cmd == 4'b0000) begin
+        if (rsp.req_cmd == READ_BURST_CMD || rsp.req_cmd == READ_CMD) begin
             int firstaddr = tr.req_addr & 32'hffffffc0;
             int id = (tr.req_addr - firstaddr) >> 3;
-            `uvm_info("mem_seq", "enter", UVM_MEDIUM);
             for (int i = 0; i < (1 << tr.req_size); i++) begin
                 if (data.exists(firstaddr + (id << 3)))
                     tr.resp_rdata[i] = data[firstaddr + (id << 3)];
@@ -71,11 +68,11 @@ class memory_sequence extends uvm_sequence #(simplebus_item);
             `uvm_send(tr)
         end
 
-        else if (rsp.req_cmd == 4'b0011) begin
+        else if (rsp.req_cmd == WRITE_BURST_CMD) begin
             response_write_burst(rsp);
         end
 
-        else if (rsp.req_cmd == 4'b0001) begin
+        else if (rsp.req_cmd == WRITE_CMD) begin
             int addr, wdata, wmask;
             addr = rsp.req_addr & 32'hfffffff8;
             wdata = rsp.req_wdata;

@@ -32,7 +32,9 @@ class simplebus_master_driver extends uvm_driver#(simplebus_item);
     endtask
 
     task driver_one_pkt();
-        @(posedge bif.req_ready);
+        while (!bif.req_ready) begin
+            @(posedge bif.clock);
+        end
 
         bif.req_valid <= 1'b1;
         bif.req_addr  <= item.req_addr;
