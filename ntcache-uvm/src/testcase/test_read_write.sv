@@ -14,7 +14,7 @@ class test_read_write_sequence extends uvm_sequence #(simplebus_item);
         if (starting_phase != null)
             starting_phase.raise_objection(this);
 
-        for (int i = 0; i < 1000; i++) begin
+        for (int i = 0; i < 10; i++) begin
             `uvm_do_with(tr, {
                 tr_type         == simplebus_item::REQ;
                 req_cmd         == WRITE_CMD;

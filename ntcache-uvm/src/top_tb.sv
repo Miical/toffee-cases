@@ -130,6 +130,7 @@ module top_tb;
     /* Configuration */
     initial begin
         uvm_config_db#(virtual simplebus_if)::set(null, "uvm_test_top.env.in_agent.drv", "bif", in_if);
+        uvm_config_db#(virtual simplebus_if)::set(null, "uvm_test_top.env.in_agent.mon", "bif", in_if);
         uvm_config_db#(virtual simplebus_if)::set(null, "uvm_test_top.env.mem_agent.drv", "bif", mem_if);
         uvm_config_db#(virtual simplebus_if)::set(null, "uvm_test_top.env.mmio_agent.drv", "bif", mmio_if);
     end
