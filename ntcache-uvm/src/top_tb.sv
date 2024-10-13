@@ -86,13 +86,7 @@ module top_tb;
         reset = 1;
         @(posedge clock);
         reset = 0;
-
-        // for (int i = 0; i < 2000; i++) begin
-        //     @(posedge clock);
-        // end
-        // $finish;
     end
-
 
     initial begin
         flush = 2'b00;

@@ -16,20 +16,24 @@ SIMV_OPTS = +UVM_VERBOSITY=$(VERBOSITY) \
 
 BUILD_SR = vsrc/Cache.v src/ simplebus/ filelist.f
 
-.PHONY: clean comp run
 
 all: comp run
 gui: comp run_gui
 
 comp:
-	rm -rf build/ && mkdir build && cp -r $(BUILD_SR) build/
-	cd build/ && vcs $(VCS_OPTS) -o simv
+	@rm -rf build/ && mkdir build && cp -r $(BUILD_SR) build/
+	@cd build/ && vcs $(VCS_OPTS) -o simv
 
 run:
-	cd build/ && ./simv $(SIMV_OPTS)
+	@cd build/ && ./simv $(SIMV_OPTS)
 
 run_gui:
-	cd build/ && ./simv -gui $(SIMV_OPTS) &
+	@cd build/ && ./simv -gui $(SIMV_OPTS) &
+
+stat: clean
+	@find . -name '*.sv' | xargs wc -l
 
 clean:
-	rm -rf build/
+	@rm -rf build/
+
+.PHONY: all gui comp run run_gui stat clean
