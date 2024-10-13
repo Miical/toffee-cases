@@ -10,7 +10,8 @@ class simplebus_master_agent extends uvm_agent;
     simplebus_master_driver drv;
     simplebus_master_monitor mon;
 
-    uvm_analysis_port #(simplebus_item) ap;
+    uvm_analysis_port #(simplebus_item) req_ap;
+    uvm_analysis_port #(simplebus_item) resp_ap;
 
     function new(string name, uvm_component parent);
         super.new(name, parent);
@@ -32,7 +33,8 @@ class simplebus_master_agent extends uvm_agent;
         if (is_active == UVM_ACTIVE) begin
             drv.seq_item_port.connect(sqr.seq_item_export);
         end
-        ap = mon.ap;
+        req_ap = mon.req_ap;
+        resp_ap = mon.resp_ap;
     endfunction
 
     `uvm_component_utils(simplebus_master_agent)

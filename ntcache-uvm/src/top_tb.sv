@@ -5,6 +5,7 @@ import uvm_pkg::*;
 
 `include "simplebus/simplebus_if.sv"
 `include "src/env/cache_env.sv"
+`include "src/env/cache_scoreboard.sv"
 `include "src/testcase/base_test.sv"
 `include "src/testcase/test_read.sv"
 `include "src/testcase/test_write.sv"

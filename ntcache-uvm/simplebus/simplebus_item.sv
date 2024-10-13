@@ -29,7 +29,6 @@ class simplebus_item extends uvm_sequence_item;
         else if (tr_type == RESP) begin
             `uvm_field_int(resp_cmd, UVM_ALL_ON)
             `uvm_field_int(resp_user, UVM_ALL_ON)
-            `uvm_field_int(resp_size, UVM_ALL_ON)
             `uvm_field_sarray_int(resp_rdata, UVM_ALL_ON)
         end
         `uvm_field_enum(Type, tr_type, UVM_NOPACK)

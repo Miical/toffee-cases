@@ -1,6 +1,18 @@
 `ifndef BASE_TEST_SV
 `define BASE_TEST_SV
 
+function replicate_bits(int binary_num, int replication, int num_bits);
+    int result, b, i, j;
+    result = 0;
+    for (i = 0; i < num_bits; i++) begin
+        b = (binary_num >> i) & 1;
+        for (j = 0; j < replication; j++) begin
+            result = result | (b << (i * replication + j));
+        end
+    end
+    return result;
+endfunction
+
 class memory_sequence extends uvm_sequence #(simplebus_item);
     `uvm_object_utils(memory_sequence)
     simplebus_item tr;
@@ -9,17 +21,6 @@ class memory_sequence extends uvm_sequence #(simplebus_item);
 
     function new(string name = "memory_sequence");
         super.new(name);
-    endfunction
-
-    function replicate_bits(int binary_num, int replication, int num_bits);
-        int result = 0;
-        for (int i = 0; i < num_bits; i++) begin
-            int b = (binary_num >> i) & 1;
-            for (int j = 0; j < replication; j++) begin
-                result = result | (b << (i * replication + j));
-            end
-        end
-        return result;
     endfunction
 
     task response_write_burst(simplebus_item req);
