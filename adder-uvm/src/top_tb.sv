@@ -5,10 +5,9 @@ import uvm_pkg::*;
 
 `include "adder_ports/adder_if.sv"
 `include "src/env/adder_env.sv"
-// // `include "src/env/adder_scoreboard.sv"
 `include "src/testcase/base_test.sv"
 `include "src/testcase/test_random.sv"
-
+`include "src/testcase/test_boundary.sv"
 
 module top_tb;
     reg clock;

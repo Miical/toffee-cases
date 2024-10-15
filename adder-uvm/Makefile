@@ -1,4 +1,4 @@
-TESTCASE = test_random
+TESTCASE = test_boundary
 VERBOSITY = UVM_MEDIUM
 
 # code coverage command
