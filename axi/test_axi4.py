@@ -10,20 +10,15 @@ from axi4_env import AXI4Bundle, AXI4Env
 async def test_random(mlvp_request):
     env: AXI4Env = await mlvp_request()
 
-    async def timeout_exit():
-        await ClockCycles(env.in_agent.bundle, 1000)
-        exit(-1)
-    async with Executor(exit="none") as exec:
-        exec(timeout_exit())
-
-    await env.in_agent.write(0, [1, 2, 3, 4])
-    print(await env.in_agent.read(0, 12))
-
+    for _ in range(1000):
+        addr = random.randint(0, (4<<5)-1) >> 3 << 3
+        data = [random.randint(0, (1<<64)-1) for _ in range(random.randint(1, (1<<4)-1))]
+        await env.in_agent.write(addr, data)
+        await env.in_agent.read(addr, len(data))
 
 @pytest.fixture()
 def mlvp_request(mlvp_pre_request: PreRequest):
     dut = mlvp_pre_request.create_dut(DUTAXI4RAM, "clock", "AXI4RAM.fst")
-    setup_logging(INFO)
 
     async def start_code():
         start_clock(dut)

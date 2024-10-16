@@ -15,6 +15,8 @@ class AXI4MasterAgent(Agent):
         self.bundle = bundle
 
     async def send_addr(self, port: Bundle, addr, len, size, burst_type, id=0):
+        assert (addr & ((1 << size) - 1)) == 0, "Address must be aligned to size"
+        assert len >= 0, "Length must be non-negative"
         port.assign({
             "valid": 1,
             "addr": addr,
@@ -23,7 +25,7 @@ class AXI4MasterAgent(Agent):
             "burst": burst_type
         })
         await AllValid(port.ready)
-        self.bundle.ar.valid.value = 0
+        port.valid.value = 0
 
     @driver_method()
     async def read(self, addr, len):
@@ -58,4 +60,4 @@ class AXI4MasterAgent(Agent):
         await AllValid(self.bundle.b.valid)
         self.bundle.b.ready.value = 0
 
-        return self.bundle.b.as_dict()
+        return self.bundle.b.resp.value
