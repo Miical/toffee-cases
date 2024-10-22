@@ -20,12 +20,14 @@ class test_random_sequence extends uvm_sequence #(axi_transaction);
             `uvm_do_with(tr, {
                 tr.tr_type == axi_transaction::READ;
                 tr.addr <= 32'd1024;
-                tr.len <= 8'd8;
+                tr.len > 0;
+                tr.len <= 8'd32;
             })
             `uvm_do_with(tr, {
                 tr.tr_type == axi_transaction::WRITE;
                 32'd0 <= tr.addr <= 32'd1024;
-                8'd0 <= tr.len <= 8'd8;
+                tr.len > 0;
+                tr.len <= 8'd32;
             })
         end
 

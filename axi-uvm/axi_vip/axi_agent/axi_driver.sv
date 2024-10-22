@@ -31,7 +31,7 @@ class axi_driver extends uvm_driver#(axi_transaction);
         end
     endtask
 
-    task send_addr(bit [31:0] addr, bit [7:0] len, bit [2:0] size, bit [1:0] burst_type);
+    task ar_send_addr(bit [31:0] addr, bit [7:0] len, bit [2:0] size, bit [1:0] burst_type);
         aif.ar_valid <= 1;
         aif.ar_addr <= addr;
         aif.ar_len <= len;
@@ -46,9 +46,24 @@ class axi_driver extends uvm_driver#(axi_transaction);
         aif.ar_valid <= 0;
     endtask
 
+    task aw_send_addr(bit [31:0] addr, bit [7:0] len, bit [2:0] size, bit [1:0] burst_type);
+        aif.aw_valid <= 1;
+        aif.aw_addr <= addr;
+        aif.aw_len <= len;
+        aif.aw_size <= size;
+        aif.aw_burst <= burst_type;
+        @(posedge aif.clock);
+
+        while (aif.aw_ready == 0) begin
+            @(posedge aif.clock);
+        end
+
+        aif.aw_valid <= 0;
+    endtask
+
     task driver_one_pkt();
         if (item.tr_type == axi_transaction::READ) begin
-            send_addr(item.addr, item.len-1, 3, 0);
+            ar_send_addr(item.addr, item.len-1, 3, 0);
             aif.r_ready <= 1;
             while (1) begin
                 $display("r_valid: %0d, r_ready: %0d, r_last: %0d", aif.r_valid, aif.r_ready, aif.r_last);
@@ -60,8 +75,9 @@ class axi_driver extends uvm_driver#(axi_transaction);
             aif.r_ready <= 0;
         end
         else if (item.tr_type == axi_transaction::WRITE) begin
-            send_addr(item.addr, item.len, 3, 0);
+            aw_send_addr(item.addr, item.len-1, 3, 0);
             for (int i = 0; i < item.len; i++) begin
+                $display("w_valid: %0d, w_ready: %0d, i: %0d, len: %0d", aif.w_valid, aif.w_ready, i, item.len);
                 aif.w_valid <= 1;
                 aif.w_data <= item.data[i];
                 aif.w_strb <= 8'hFF;
@@ -73,6 +89,7 @@ class axi_driver extends uvm_driver#(axi_transaction);
                 aif.w_valid <= 0;
             end
             aif.b_ready <= 1;
+            @(posedge aif.clock);
             while (aif.b_valid == 0) begin
                 @(posedge aif.clock);
             end
