@@ -24,7 +24,17 @@ class axi_monitor extends uvm_monitor;
         fork
             begin
                 while(1) begin
+                    collect_ar_pkt();
+                end
+            end
+            begin
+                while(1) begin
                     collect_r_pkt();
+                end
+            end
+            begin
+                while(1) begin
+                    collect_aw_w_pkt();
                 end
             end
             begin
@@ -33,6 +43,50 @@ class axi_monitor extends uvm_monitor;
                 end
             end
         join
+    endtask
+
+    task collect_ar_pkt();
+        axi_transaction tr;
+        tr = new();
+        tr.tr_type = axi_transaction::READ;
+        while (1) begin
+            if (aif.ar_valid && aif.ar_ready) begin
+                tr.addr = aif.ar_addr;
+                tr.len = aif.ar_len + 1;
+                ap.write(tr);
+                break;
+            end
+            @(posedge aif.clock);
+        end
+        @(posedge aif.clock);
+    endtask
+
+    task collect_aw_w_pkt();
+        axi_transaction tr;
+        int idx = 0;
+        tr = new();
+        tr.tr_type = axi_transaction::WRITE;
+        while (1) begin
+            if (aif.aw_valid && aif.aw_ready) begin
+                tr.addr = aif.aw_addr;
+                tr.len = aif.aw_len + 1;
+                break;
+            end
+            @(posedge aif.clock);
+        end
+        while (1) begin
+            if (aif.w_valid && aif.w_ready) begin
+                tr.data[idx] = aif.w_data;
+                idx++;
+                if (aif.w_last) begin
+                    tr.len = idx;
+                    break;
+                end
+            end
+            @(posedge aif.clock);
+        end
+        ap.write(tr);
+        @(posedge aif.clock);
     endtask
 
     task collect_b_pkt();
@@ -46,8 +100,6 @@ class axi_monitor extends uvm_monitor;
             end
             @(posedge aif.clock);
         end
-
-        ap.write(tr);
         @(posedge aif.clock);
     endtask
 

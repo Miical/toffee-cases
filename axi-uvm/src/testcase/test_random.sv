@@ -11,24 +11,21 @@ class test_random_sequence extends uvm_sequence #(axi_transaction);
     endfunction
 
     virtual task body();
-        $display("okkkkk");
         if (starting_phase != null)
             starting_phase.raise_objection(this);
 
         for (int i = 0; i < 1000; i++) begin
             `uvm_info(get_type_name(), $sformatf("Generating transaction %0d", i), UVM_LOW)
             `uvm_do_with(tr, {
-                tr.tr_type == axi_transaction::READ;
-                tr.addr <= 32'd1024;
-                tr.len > 0;
-                tr.len <= 8'd32;
-            })
-            `uvm_do_with(tr, {
                 tr.tr_type == axi_transaction::WRITE;
-                32'd0 <= tr.addr <= 32'd1024;
+                tr.addr[2:0] == 0;
+                tr.addr < (32'd4 << 5);
                 tr.len > 0;
-                tr.len <= 8'd32;
+                tr.len <= 8'd11;
             })
+
+            tr.tr_type = axi_transaction::READ;
+            `uvm_send(tr)
         end
 
         #100

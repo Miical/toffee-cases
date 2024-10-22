@@ -25,7 +25,7 @@ class axi_driver extends uvm_driver#(axi_transaction);
         end
         forever begin
             seq_item_port.get_next_item(item);
-            `uvm_info(get_type_name(), $sformatf("Got item: %s", item.sprint()), UVM_LOW)
+            // `uvm_info(get_type_name(), $sformatf("Got item: %s", item.sprint()), UVM_LOW)
             driver_one_pkt();
             seq_item_port.item_done();
         end
@@ -63,10 +63,9 @@ class axi_driver extends uvm_driver#(axi_transaction);
 
     task driver_one_pkt();
         if (item.tr_type == axi_transaction::READ) begin
-            ar_send_addr(item.addr, item.len-1, 3, 0);
+            ar_send_addr(item.addr, item.len-1, 3, 1);
             aif.r_ready <= 1;
             while (1) begin
-                $display("r_valid: %0d, r_ready: %0d, r_last: %0d", aif.r_valid, aif.r_ready, aif.r_last);
                 if (aif.r_valid && aif.r_ready && aif.r_last) begin
                     break;
                 end
@@ -75,9 +74,8 @@ class axi_driver extends uvm_driver#(axi_transaction);
             aif.r_ready <= 0;
         end
         else if (item.tr_type == axi_transaction::WRITE) begin
-            aw_send_addr(item.addr, item.len-1, 3, 0);
+            aw_send_addr(item.addr, item.len-1, 3, 1);
             for (int i = 0; i < item.len; i++) begin
-                $display("w_valid: %0d, w_ready: %0d, i: %0d, len: %0d", aif.w_valid, aif.w_ready, i, item.len);
                 aif.w_valid <= 1;
                 aif.w_data <= item.data[i];
                 aif.w_strb <= 8'hFF;

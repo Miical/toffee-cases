@@ -15,6 +15,7 @@ class axi_transaction extends uvm_sequence_item;
       `uvm_field_int(len, UVM_ALL_ON)
     end
     else if (tr_type == WRITE) begin
+      `uvm_field_int(addr, UVM_ALL_ON)
       `uvm_field_int(len, UVM_ALL_ON)
       `uvm_field_sarray_int(data, UVM_ALL_ON)
     end
