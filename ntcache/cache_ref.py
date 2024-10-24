@@ -25,11 +25,3 @@ class CacheRefModel(Model):
             self.data[addr] = 0
         self.data[addr] = (self.data[addr] & (~wmask)) | (wdata & wmask)
         return {"user": user}
-
-    @agent_hook(agent_name="mem_agent")
-    def dummy_mem_hook(self, type, args):
-        pass
-
-    @agent_hook(agent_name="mmio_agent")
-    def dummy_mmio_hook(self, type, args):
-        pass
