@@ -1,5 +1,4 @@
-from mlvp.agent import *
-from mlvp.triggers import *
+from mlvp import *
 from .axi4_bundle import *
 
 class AXI4Config:
