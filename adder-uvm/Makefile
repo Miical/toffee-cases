@@ -1,5 +1,5 @@
 TESTCASE = test_boundary
-VERBOSITY = UVM_MEDIUM
+VERBOSITY = UVM_LOW
 
 # code coverage command
 CM = -cm line+cond+fsm+branch+tgl

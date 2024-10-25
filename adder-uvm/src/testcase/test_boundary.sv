@@ -15,14 +15,13 @@ class test_boundary_sequence extends uvm_sequence #(adder_transaction);
             starting_phase.raise_objection(this);
 
         tr = new("tr");
-        for (int cin = 0; cin < 2; cin++) begin
+        for (int i = 0; i < 80000; i++) begin
             for (logic [65:0] a = 0; a < 2**64; a+=2**64-1) begin
                 for (logic[65:0] b = 0; b < 2**64; b+=2**64-1) begin
-                    tr.a = a;
-                    tr.b = b;
-                    tr.cin = cin;
-                    `uvm_info(get_type_name(), $sformatf("Generating transaction a=%0d, b=%0d, cin=%0d", a, b, cin), UVM_LOW)
-                    `uvm_do(tr)
+                    `uvm_do_with(tr, {
+                        tr.a == a;
+                        tr.b == b;
+                    })
                 end
             end
         end

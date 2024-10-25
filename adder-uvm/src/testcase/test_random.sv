@@ -14,7 +14,7 @@ class test_random_sequence extends uvm_sequence #(adder_transaction);
         if (starting_phase != null)
             starting_phase.raise_objection(this);
 
-        for (int i = 0; i < 1000; i++) begin
+        for (int i = 0; i < 300000; i++) begin
             `uvm_info(get_type_name(), $sformatf("Generating transaction %0d", i), UVM_MEDIUM)
             `uvm_do(tr)
         end

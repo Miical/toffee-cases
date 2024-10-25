@@ -1,14 +1,23 @@
-WORK_DIR = $(shell pwd)/src
-PYTHON 	= python3
-PICKER 	= picker
-NAME	= Adder
+VSRC_DIR    = ./vsrc
+PICKER      = picker
+NAME        = Adder
+NAME_L      = adder
+SIM         = verilator
+WAVE_FORMAT = fst
+TARGET_LANG = python
 
 run:
-	pytest --mlvp-report -n auto -sv .
+	pytest -n auto -v .
 
 dut:
-	$(PICKER) export --autobuild=true adder.v -w Adder.fst --sname Adder --tdir picker_out_adder --lang python -e -c --sim verilator
-	cp -r picker_out_adder/UT_Adder .
+	$(PICKER) export --autobuild=true $(VSRC_DIR)/$(NAME).v \
+		-w $(NAME).$(WAVE_FORMAT) \
+		--sname $(NAME) \
+		--tdir picker_out_$(NAME_L) \
+		--lang $(TARGET_LANG) \
+		--sim $(SIM) \
+		-e -c
+	@cp -r picker_out_$(NAME_L)/UT_$(NAME) .
 
 clean:
-	rm -rf UT_Adder picker_out_adder reports
+	rm -rf UT_$(NAME) picker_out_$(NAME_L) reports *.fst *.fst.hier *.dat

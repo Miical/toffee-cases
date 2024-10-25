@@ -6,7 +6,6 @@
 class adder_monitor extends uvm_monitor;
     `uvm_component_utils(adder_monitor)
     virtual adder_if aif;
-
     uvm_analysis_port #(adder_transaction) ap;
 
     function new(string name = "adder_monitor", uvm_component parent = null);
@@ -37,7 +36,6 @@ class adder_monitor extends uvm_monitor;
         tr.cout = aif.cout;
 
         ap.write(tr);
-        `uvm_info(get_type_name(), $sformatf("Got item: a=%0d, b=%0d, cin=%0d, sum=%0d, cout=%0d", tr.a, tr.b, tr.cin, tr.sum, tr.cout), UVM_LOW)
         @(posedge aif.clock);
     endtask
 endclass

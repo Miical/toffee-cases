@@ -26,7 +26,7 @@ module top_tb;
         run_test();
     end
 
-    // /* Configuration */
+    /* Configuration */
     initial begin
         uvm_config_db#(virtual adder_if)::set(null, "uvm_test_top.env.adder_agent.drv", "aif", dut_if);
         uvm_config_db#(virtual adder_if)::set(null, "uvm_test_top.env.adder_agent.mon", "aif", dut_if);
@@ -39,7 +39,6 @@ module top_tb;
             #100 clock = ~clock;
         end
     end
-
 
     /* Dump waveform */
     initial begin

@@ -18,7 +18,7 @@ class adder_scoreboard extends uvm_scoreboard;
             `uvm_error("ADDER_SCOREBOARD", $sformatf("Mismatch! Expected sum: %0h, cout: %0b, Got sum: %0h, cout: %0b",
                         expected[63:0], expected[64], trans.sum, trans.cout))
         end else begin
-            `uvm_info("ADDER_SCOREBOARD", "Result matches", UVM_LOW)
+            `uvm_info("ADDER_SCOREBOARD", "Result matches", UVM_MEDIUM)
         end
     endfunction
 endclass

@@ -4,8 +4,8 @@
 class adder_transaction extends uvm_sequence_item;
   rand bit [63:0] a, b;
   rand bit        cin;
-  bit [63:0]      sum;
-  bit             cout;
+  rand bit [63:0] sum;
+  rand bit        cout;
 
   `uvm_object_utils_begin(adder_transaction)
     `uvm_field_int(a, UVM_ALL_ON)

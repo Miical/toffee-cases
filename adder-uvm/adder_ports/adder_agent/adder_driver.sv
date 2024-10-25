@@ -22,7 +22,6 @@ class adder_driver extends uvm_driver#(adder_transaction);
     virtual task run_phase(uvm_phase phase);
         forever begin
             seq_item_port.get_next_item(item);
-            `uvm_info(get_type_name(), $sformatf("Got item: a=%0d, b=%0d, cin=%0d", item.a, item.b, item.cin), UVM_LOW)
             driver_one_pkt();
             seq_item_port.item_done();
         end
