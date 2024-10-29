@@ -7,7 +7,7 @@ WAVE_FORMAT = fst
 TARGET_LANG = python
 
 run:
-	pytest -n auto -v .
+	pytest -v .
 
 dut:
 	$(PICKER) export --autobuild=true $(VSRC_DIR)/$(NAME).v \
