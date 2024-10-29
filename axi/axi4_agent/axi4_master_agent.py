@@ -1,4 +1,4 @@
-from mlvp import *
+from toffee import *
 from .axi4_bundle import *
 
 class AXI4Config:
@@ -9,10 +9,6 @@ class AXI4Config:
     BURST_TYPE = INCR
 
 class AXI4MasterAgent(Agent):
-    def __init__(self, bundle: AXI4Bundle):
-        super().__init__(bundle.step)
-        self.bundle = bundle
-
     async def send_addr(self, port: Bundle, addr, len, size, burst_type, id=0):
         assert (addr & ((1 << size) - 1)) == 0, "Address must be aligned to size"
         assert len >= 0, "Length must be non-negative"

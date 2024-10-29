@@ -3,6 +3,7 @@ uvm-ex/
 mcv/
 ovip/
 UT_*/
+*.dat
 
 reports/
 report/

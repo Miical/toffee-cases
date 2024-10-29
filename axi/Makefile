@@ -7,7 +7,7 @@ WAVE_FORMAT = fst
 TARGET_LANG = python
 
 run:
-	pytest --mlvp-report -sv .
+	pytest --toffee-report -sv .
 
 dut:
 	$(PICKER) export --autobuild=true $(VSRC_DIR)/$(NAME).v \

@@ -5,12 +5,12 @@ from UT_Adder import DUTAdder
 from env import AdderEnv, AdderBundle
 
 @toffee_test.testcase
-async def test_random(adder_env):
+async def test_random(adder_env: AdderEnv):
     for _ in range(10000):
         await adder_env.add_agent.exec_add(randint(0, 2**64-1), randint(0, 2**64-1), randint(0, 1))
 
 @toffee_test.testcase
-async def test_boundary(adder_env):
+async def test_boundary(adder_env: AdderEnv):
     for _ in range(1000):
         for a in [0, 2**64-1]:
             for b in [0, 2**64-1]:
