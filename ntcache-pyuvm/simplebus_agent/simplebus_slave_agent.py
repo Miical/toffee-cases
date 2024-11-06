@@ -8,7 +8,7 @@ from .simplebus_interface import SimpleBusCMD
 class SimplebusSlaveDriver(uvm_driver):
     def build_phase(self):
         self.item = None
-        self.bif = ConfigDB().get(None, "", "mem_if")
+        self.bif = ConfigDB().get(self, "bif", "out_if")
 
     async def get_request(self):
         self.bif.req_ready.value = 1

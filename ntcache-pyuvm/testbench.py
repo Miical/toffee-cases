@@ -9,13 +9,13 @@ from cocotb.triggers import *
 
 class RandomSeq(uvm_sequence):
     async def body(self):
-        for _ in range(1000):
+        for _ in range(10000):
             seq_item = SimplebusSeqItem("RandomSeqItem")
             seq_item.tr_type = SimplebusSeqItemType.REQ
             seq_item.randomize()
             # seq_item.req_cmd = SimpleBusCMD.Write
             seq_item.req_cmd = random.choice([SimpleBusCMD.Read, SimpleBusCMD.Write])
-            seq_item.req_addr = random.randint(0, 2**28-1) >> 12 << 12
+            seq_item.req_addr = random.randint(0, 2**32-1) >> 3 << 3
 
             await self.start_item(seq_item)
             await self.finish_item(seq_item)
@@ -103,7 +103,6 @@ class MemorySeq(uvm_sequence):
     async def body(self):
         while True:
             await self.response_once()
-
 
 async def init_dut(dut):
     dut.io_in_req_valid.value = 0
@@ -200,13 +199,15 @@ class AdderRandomTest(uvm_test):
             "resp_rdata": self.dut.io_mmio_resp_bits_rdata,
         })
 
-        ConfigDB().set(None, "*", "in_if", self.in_if)
-        ConfigDB().set(None, "*", "mem_if", self.mem_if)
+        ConfigDB().set(self, "env.in_agent.driver.bif", "in_if", self.in_if)
+        ConfigDB().set(self, "env.mem_agent.driver.bif", "out_if", self.mem_if)
+        ConfigDB().set(self, "env.mmio_agent.driver.bif", "out_if", self.mmio_if)
         self.env = CacheEnv("env", self)
 
     def end_of_elaboration_phase(self):
         self.random_seq = RandomSeq.create("random_seq")
         self.mem_seq = MemorySeq.create("mem_seq")
+        self.mmio_seq = MemorySeq.create("mmio_seq")
 
     async def run_phase(self):
         self.raise_objection()
@@ -215,8 +216,10 @@ class AdderRandomTest(uvm_test):
 
         in_seqr = ConfigDB().get(self, "env.in_agent.seqr", "SEQR")
         mem_seqr = ConfigDB().get(self, "env.mem_agent.seqr", "SEQR")
+        mmio_seqr = ConfigDB().get(self, "env.mmio_agent.seqr", "SEQR")
 
         cocotb.start_soon(self.mem_seq.start(mem_seqr))
+        cocotb.start_soon(self.mmio_seq.start(mmio_seqr))
         await self.random_seq.start(in_seqr)
         self.drop_objection()
 

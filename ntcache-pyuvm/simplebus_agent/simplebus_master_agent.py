@@ -6,7 +6,7 @@ from .simplebus_seqitem import SimplebusSeqItem, SimplebusSeqItemType
 class SimplebusMasterDriver(uvm_driver):
     def build_phase(self):
         self.item = None
-        self.bif = ConfigDB().get(None, "", "in_if")
+        self.bif = ConfigDB().get(self, "bif", "in_if")
 
     async def drive_a_pkt(self, seq_item):
         while self.bif.req_ready.value != 1:

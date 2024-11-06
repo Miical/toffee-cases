@@ -31,6 +31,7 @@ class CacheEnv(uvm_env):
     def build_phase(self):
         self.in_agent = SimplebusMasterAgent("in_agent", self)
         self.mem_agent = SimplebusSlaveAgent("mem_agent", self)
+        self.mmio_agent = SimplebusSlaveAgent("mmio_agent", self)
         # self.scoreboard = AdderScoreboard("scoreboard", self)
 
     def connect_phase(self):
