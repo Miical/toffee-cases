@@ -14,6 +14,7 @@ class DummySignal:
 
 class SimplebusInterface():
     def __init__(self, dict):
+        self.reset = dict["reset"]
         self.clock = dict["clock"]
         self.req_ready = dict["req_ready"]
         self.req_valid = dict["req_valid"]

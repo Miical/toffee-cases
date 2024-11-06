@@ -38,8 +38,25 @@ class SimplebusSeqItem(uvm_sequence_item):
         self.resp_rdata = [random.randint(0, 2**64-1) for _ in range(8)]
 
     def __eq__(self, other):
-        ...
+        if self.tr_type != other.tr_type:
+            return False
+        if self.tr_type == SimplebusSeqItemType.REQ:
+            return self.req_addr == other.req_addr and self.req_size == other.req_size and \
+                   self.req_cmd == other.req_cmd and self.req_wmask == other.req_wmask and \
+                   self.req_wdata == other.req_wdata and self.req_user == other.req_user
+        elif self.tr_type == SimplebusSeqItemType.RESP:
+            return self.resp_cmd == other.resp_cmd and self.resp_user == other.resp_user and \
+                   self.resp_size == other.resp_size and self.resp_rdata == other.resp_rdata
+        else:
+            return True
 
     def __str__(self):
-        return f"SimplebusSeqItem({self.tr_type}, {self.req_addr}, {self.req_size}, {self.req_cmd}, {self.req_wmask}, \
-            {self.req_wdata}, {self.req_user}, {self.resp_cmd}, {self.resp_user}, {self.resp_size}, {self.resp_rdata})"
+        if self.tr_type == SimplebusSeqItemType.REQ:
+            return f"SimplebusSeqItem({self.tr_type}, addr: {hex(self.req_addr)}, req_size: {hex(self.req_size)}, \
+                req_cmd: {hex(self.req_cmd)}, req_wmask: {hex(self.req_wmask)}, req_wdata: {self.req_wdata}, \
+                req_user: {hex(self.req_user)})"
+        elif self.tr_type == SimplebusSeqItemType.RESP:
+            return f"SimplebusSeqItem({self.tr_type}, resp_cmd: {hex(self.resp_cmd)}, resp_user: {hex(self.resp_user)}, \
+                resp_size: {hex(self.resp_size)}, resp_rdata: {self.resp_rdata})"
+        else:
+            return f"SimplebusSeqItem({self.tr_type})"

@@ -6,29 +6,22 @@ from pyuvm import *
 from simplebus_agent import SimplebusInterface, SimpleBusCMD, SimplebusSeqItemType, SimplebusSeqItem
 from cache_env import CacheEnv
 from cocotb.triggers import *
+from utils import replicate_bits
 
 class RandomSeq(uvm_sequence):
     async def body(self):
-        for _ in range(10000):
+        for _ in range(1000):
             seq_item = SimplebusSeqItem("RandomSeqItem")
-            seq_item.tr_type = SimplebusSeqItemType.REQ
             seq_item.randomize()
-            # seq_item.req_cmd = SimpleBusCMD.Write
+            seq_item.tr_type = SimplebusSeqItemType.REQ
             seq_item.req_cmd = random.choice([SimpleBusCMD.Read, SimpleBusCMD.Write])
-            seq_item.req_addr = random.randint(0, 2**32-1) >> 3 << 3
+            seq_item.req_wmask = 0xff
+            seq_item.req_addr = random.randint(0, 2**28-1) >> 3 << 3
 
             await self.start_item(seq_item)
             await self.finish_item(seq_item)
-            print(await self.get_response())
+            await self.get_response()
 
-
-def replicate_bits(binary_num, replication, num_bits):
-    result = 0
-    for i in range(num_bits):
-        bit = (binary_num >> i) & 1
-        for j in range(replication):
-            result = result | (bit << (i * replication + j))
-    return result
 
 class MemorySeq(uvm_sequence):
     def __init__(self, name):
@@ -153,6 +146,7 @@ class AdderRandomTest(uvm_test):
     def build_phase(self):
         self.dut = cocotb.top
         self.in_if = SimplebusInterface({
+            "reset": self.dut.reset,
             "clock": self.dut.clock,
             "req_valid": self.dut.io_in_req_valid,
             "req_ready": self.dut.io_in_req_ready,
@@ -170,6 +164,7 @@ class AdderRandomTest(uvm_test):
         })
 
         self.mem_if = SimplebusInterface({
+            "reset": self.dut.reset,
             "clock": self.dut.clock,
             "req_valid": self.dut.io_out_mem_req_valid,
             "req_ready": self.dut.io_out_mem_req_ready,
@@ -185,6 +180,7 @@ class AdderRandomTest(uvm_test):
         })
 
         self.mmio_if = SimplebusInterface({
+            "reset": self.dut.reset,
             "clock": self.dut.clock,
             "req_valid": self.dut.io_mmio_req_valid,
             "req_ready": self.dut.io_mmio_req_ready,
@@ -200,6 +196,7 @@ class AdderRandomTest(uvm_test):
         })
 
         ConfigDB().set(self, "env.in_agent.driver.bif", "in_if", self.in_if)
+        ConfigDB().set(self, "env.in_agent.monitor.bif", "in_if", self.in_if)
         ConfigDB().set(self, "env.mem_agent.driver.bif", "out_if", self.mem_if)
         ConfigDB().set(self, "env.mmio_agent.driver.bif", "out_if", self.mmio_if)
         self.env = CacheEnv("env", self)

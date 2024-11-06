@@ -72,21 +72,11 @@ class SimplebusSlaveDriver(uvm_driver):
             await self.drive_response(self.item, is_read_req)
             self.seq_item_port.item_done()
 
-class AXISlaveMonitor(uvm_monitor):
-    def build_phase(self):
-        self.ap = uvm_analysis_port("ap", self)
-        self.dut = cocotb.top
-
-    async def run_phase(self):
-        ...
-
 class SimplebusSlaveAgent(uvm_agent):
     def build_phase(self):
         self.seqr = uvm_sequencer("seqr", self)
         self.driver = SimplebusSlaveDriver("driver", self)
-        # self.monitor = AXIMonitor("monitor", self)
         ConfigDB().set(self, "seqr", "SEQR", self.seqr)
 
     def connect_phase(self):
-        # self.ap = self.monitor.ap
         self.driver.seq_item_port.connect(self.seqr.seq_item_export)
