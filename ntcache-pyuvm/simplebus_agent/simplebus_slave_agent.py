@@ -1,4 +1,5 @@
 import cocotb
+import cocotb.binary
 from pyuvm import *
 from cocotb.triggers import *
 from .simplebus_seqitem import SimplebusSeqItem, SimplebusSeqItemType
@@ -15,15 +16,19 @@ class SimplebusSlaveDriver(uvm_driver):
             await RisingEdge(self.bif.clock)
             if self.bif.req_valid.value == 1:
                 break
-        self.bif.req_ready.value = 0
 
         self.item.tr_type = SimplebusSeqItemType.REQ
-        self.item.req_addr = self.bif.req_addr.value
-        self.item.req_size = self.bif.req_size.value
-        self.item.req_cmd = self.bif.req_cmd.value
-        self.item.req_wmask = self.bif.req_wmask.value
-        self.item.req_wdata = self.bif.req_wdata.value
-        self.item.req_user = self.bif.req_user.value
+        self.item.req_addr = int(self.bif.req_addr.value)
+        self.item.req_size = int(self.bif.req_size.value)
+        self.item.req_cmd = int(self.bif.req_cmd.value)
+        self.item.req_wmask = int(self.bif.req_wmask.value)
+        try:
+            self.item.req_wdata = int(self.bif.req_wdata.value)
+        except ValueError:
+            self.item.req_wdata = 0
+        self.item.req_user = int(self.bif.req_user.value)
+
+        self.bif.req_ready.value = 0
         await RisingEdge(self.bif.clock)
 
     async def drive_response(self, seq_item, is_read_req):
@@ -64,10 +69,8 @@ class SimplebusSlaveDriver(uvm_driver):
             # send response
             self.item = await self.seq_item_port.get_next_item()
             assert self.item.tr_type == SimplebusSeqItemType.RESP
-            print("salve agent send response", self.item)
             await self.drive_response(self.item, is_read_req)
             self.seq_item_port.item_done()
-            print("send done")
 
 class AXISlaveMonitor(uvm_monitor):
     def build_phase(self):

@@ -25,27 +25,23 @@ class SimplebusMasterDriver(uvm_driver):
         await RisingEdge(self.bif.clock)
 
     async def get_response(self):
-        print("get response...")
         self.bif.resp_ready.value = 1
         await RisingEdge(self.bif.clock)
         while self.bif.resp_valid.value == 0:
             await RisingEdge(self.bif.clock)
         self.bif.resp_ready.value = 0
 
-        self.item.resp_user = self.bif.resp_user.value
-        self.item.resp_cmd = self.bif.resp_cmd.value
-        self.item.resp_rdata.append(self.bif.resp_rdata.value)
+        self.item.resp_user = int(self.bif.resp_user.value)
+        self.item.resp_cmd = int(self.bif.resp_cmd.value)
+        self.item.resp_rdata.append(int(self.bif.resp_rdata.value))
         RisingEdge(self.bif.clock)
 
     async def run_phase(self):
         while True:
             self.item = await self.seq_item_port.get_next_item()
-            print(self.item)
             assert self.item.tr_type == SimplebusSeqItemType.REQ
             await self.drive_a_pkt(self.item)
-            print("send_req_ok")
             await self.get_response()
-            print("get response done...")
             self.seq_item_port.put_response(self.item)
             self.seq_item_port.item_done()
 

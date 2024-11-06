@@ -7,7 +7,7 @@ class SimpleBusCMD():
 
 class DummySignal:
     def __getattribute__(self, name: str) -> Any:
-        return None
+        return 0
 
     def __setattr__(self, name: str, value: Any) -> None:
         ...

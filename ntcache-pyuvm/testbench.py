@@ -9,12 +9,14 @@ from cocotb.triggers import *
 
 class RandomSeq(uvm_sequence):
     async def body(self):
-        for _ in range(100):
+        for _ in range(1000):
             seq_item = SimplebusSeqItem("RandomSeqItem")
             seq_item.tr_type = SimplebusSeqItemType.REQ
             seq_item.randomize()
-            seq_item.req_cmd = SimpleBusCMD.Read
-            seq_item.req_addr = 0x80000000
+            # seq_item.req_cmd = SimpleBusCMD.Write
+            seq_item.req_cmd = random.choice([SimpleBusCMD.Read, SimpleBusCMD.Write])
+            seq_item.req_addr = random.randint(0, 2**28-1) >> 12 << 12
+
             await self.start_item(seq_item)
             await self.finish_item(seq_item)
             print(await self.get_response())
@@ -52,7 +54,7 @@ class MemorySeq(uvm_sequence):
     async def write_resp(self, user):
         seq_item = SimplebusSeqItem("MemorySeqItem")
         seq_item.tr_type = SimplebusSeqItemType.RESP
-        seq_item.resp_cmd = SimpleBusCMD.WriteResp.value
+        seq_item.resp_cmd = SimpleBusCMD.WriteResp
         seq_item.resp_user = user
         await self.start_item(seq_item)
         await self.finish_item(seq_item)
@@ -66,7 +68,7 @@ class MemorySeq(uvm_sequence):
                 self.data[addr] = 0
             self.data[addr] = (self.data[addr] & (~wmask)) | (data & wmask)
             await self.write_resp(req.req_user)
-            if (req.req_cmd == SimpleBusCMD.WriteLast.value):
+            if (req.req_cmd == SimpleBusCMD.WriteLast):
                 break
 
             req = await self.get_req()
