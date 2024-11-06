@@ -1,5 +1,5 @@
 from pyuvm import *
-from simplebus_agent import SimplebusSeqItem, SimplebusMasterAgent, SimplebusSeqItemType
+from simplebus_agent import SimplebusSeqItem, SimplebusMasterAgent, SimplebusSeqItemType, SimplebusSlaveAgent
 
 # class AdderScoreboard(uvm_scoreboard):
 #     class AnalysisExport(uvm_analysis_export):
@@ -29,7 +29,8 @@ from simplebus_agent import SimplebusSeqItem, SimplebusMasterAgent, SimplebusSeq
 
 class CacheEnv(uvm_env):
     def build_phase(self):
-        self.agent = SimplebusMasterAgent("agent", self)
+        self.in_agent = SimplebusMasterAgent("in_agent", self)
+        self.mem_agent = SimplebusSlaveAgent("mem_agent", self)
         # self.scoreboard = AdderScoreboard("scoreboard", self)
 
     def connect_phase(self):
