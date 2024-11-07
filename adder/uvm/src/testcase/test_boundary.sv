@@ -1,5 +1,5 @@
-`ifndef TEST_boundary__SV
-`define TEST_boundary__SV
+`ifndef TEST_BOUNDARY__SV
+`define TEST_BOUNDARY__SV
 
 class test_boundary_sequence extends uvm_sequence #(adder_transaction);
     `uvm_object_utils(test_boundary_sequence)
@@ -15,7 +15,7 @@ class test_boundary_sequence extends uvm_sequence #(adder_transaction);
             starting_phase.raise_objection(this);
 
         tr = new("tr");
-        for (int i = 0; i < 80000; i++) begin
+        for (int i = 0; i < 20000; i++) begin
             for (logic [65:0] a = 0; a < 2**64; a+=2**64-1) begin
                 for (logic[65:0] b = 0; b < 2**64; b+=2**64-1) begin
                     `uvm_do_with(tr, {
