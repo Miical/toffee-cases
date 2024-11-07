@@ -6,7 +6,7 @@ from cocotb.triggers import *
 
 class RandomSeq(uvm_sequence):
     async def body(self):
-        for _ in range(10000):
+        for _ in range(80000):
             seq_item = AdderSeqItem()
             seq_item.randomize()
             await self.start_item(seq_item)
@@ -14,7 +14,7 @@ class RandomSeq(uvm_sequence):
 
 class BounarySeq(uvm_sequence):
     async def body(self):
-        for _ in range(1000):
+        for _ in range(20000):
             for a in [0, 2**64-1]:
                 for b in [0, 2**64-1]:
                     cin = random.randint(0, 1)
@@ -28,7 +28,7 @@ class AdderRandomTest(uvm_test):
         self.env = AdderEnv("env", self)
 
     def end_of_elaboration_phase(self):
-        self.random_seq= RandomSeq.create("random_seq")
+        self.random_seq = RandomSeq.create("random_seq")
 
     async def run_phase(self):
         self.raise_objection()

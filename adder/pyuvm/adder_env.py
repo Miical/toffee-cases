@@ -4,6 +4,10 @@ from adder_agent import AdderSeqItem, AdderAgent
 
 class AdderScoreboard(uvm_scoreboard):
     class AnalysisExport(uvm_analysis_export):
+        def __init__(self, name, parent):
+            super().__init__(name, parent)
+            self.logger.setLevel(logging.ERROR)
+
         def write(self, seq_item):
             std_item = copy.deepcopy(seq_item)
             result = std_item.a + std_item.b + std_item.cin
@@ -18,7 +22,6 @@ class AdderScoreboard(uvm_scoreboard):
     def build_phase(self):
         super().build_phase()
         self.ap_analysis_export = AdderScoreboard.AnalysisExport("ap_analysis_export", self)
-
 
 class AdderEnv(uvm_env):
     def build_phase(self):
