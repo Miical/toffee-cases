@@ -1,6 +1,7 @@
 CWD=$(shell pwd)
 export COCOTB_REDUCED_LOG_FMT = 1
-SIM ?= vcs
+SIM ?= verilator
+SIM_ARGS ?= --x-initial 0
 TOPLEVEL_LANG ?= verilog
 VERILOG_SOURCES =$(CWD)/hdl/AXI4RAM.v
 

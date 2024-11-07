@@ -1,20 +1,21 @@
 from pyuvm import *
-from axi_agent import AXISeqItem, AXIAgent, AXISeqItemType
+from axi4_agent import AXI4SeqItem, AXI4Agent, AXI4SeqItemType
 
 class AdderScoreboard(uvm_scoreboard):
     class AnalysisExport(uvm_analysis_export):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
+            self.logger.setLevel(logging.ERROR)
             self.mem = {}
-            self.std_item = AXISeqItem()
+            self.std_item = AXI4SeqItem()
 
         def write(self, seq_item):
-            if seq_item.tr_type == AXISeqItemType.WRITE:
+            if seq_item.tr_type == AXI4SeqItemType.WRITE:
                 for i, d in enumerate(seq_item.data):
                     self.mem[(seq_item.addr >> 3) + i] = d
-                self.std_item.tr_type = AXISeqItemType.WRITE_RESP
-            elif seq_item.tr_type == AXISeqItemType.READ:
-                self.std_item.tr_type = AXISeqItemType.READ_RESP
+                self.std_item.tr_type = AXI4SeqItemType.WRITE_RESP
+            elif seq_item.tr_type == AXI4SeqItemType.READ:
+                self.std_item.tr_type = AXI4SeqItemType.READ_RESP
                 self.std_item.data = [self.mem.get((seq_item.addr >> 3) + i, 0) for i in range(seq_item.len)]
                 self.std_item.len = seq_item.len
             else:
@@ -28,9 +29,9 @@ class AdderScoreboard(uvm_scoreboard):
         self.ap_analysis_export = AdderScoreboard.AnalysisExport("ap_analysis_export", self)
 
 
-class AXIEnv(uvm_env):
+class AXI4Env(uvm_env):
     def build_phase(self):
-        self.agent = AXIAgent("agent", self)
+        self.agent = AXI4Agent("agent", self)
         self.scoreboard = AdderScoreboard("scoreboard", self)
 
     def connect_phase(self):
