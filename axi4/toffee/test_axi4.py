@@ -28,14 +28,13 @@ async def test_write_burst(axi4_env: AXI4Env):
             random.randint(0, (1<<11)-1) >> 3 << 3,
             [random.randint(0, (1<<64)-1) for _ in range(random.randint(1, 16))])
 
-@settings(max_examples=2500, suppress_health_check=[HealthCheck.function_scoped_fixture])
-@given(
-    addr=st.integers(0, (1<<10)-1).map(lambda x: (x>>3)<<3),
-    data=st.lists(st.integers(min_value=0, max_value=(1<<64)-1), min_size=1, max_size=(1<<4)-1))
 @toffee_test.testcase
-async def test_read_and_write_same_addr(axi4_env: AXI4Env, addr, data):
-    await axi4_env.in_agent.write(addr, data)
-    await axi4_env.in_agent.read(addr, len(data))
+async def test_read_and_write_same_addr(axi4_env: AXI4Env):
+    for _ in range(5000):
+        addr = random.randint(0, (1<<11)-1) >> 3 << 3
+        data = [random.randint(0, (1<<64)-1) for _ in range(random.randint(1, 16))]
+        await axi4_env.in_agent.write(addr, data)
+        await axi4_env.in_agent.read(addr, len(data))
 
 @toffee_test.testcase
 async def test_random_read_and_write(axi4_env: AXI4Env):

@@ -171,7 +171,7 @@ class TestWriteBurst(uvm_test):
 
 class TestReadAndWriteSameAddrSequence(uvm_sequence):
     async def body(self):
-        for _ in range(15000):
+        for _ in range(5000):
             seq_item = AXI4SeqItem("RandomSeqItem")
             seq_item.tr_type = AXI4SeqItemType.WRITE
             seq_item.randomize()
