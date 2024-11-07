@@ -19,6 +19,5 @@ class AXI4Model(Model):
 class AXI4Env(Env):
     def __init__(self, axi4_bundle: AXI4Bundle):
         super().__init__()
-
         self.in_agent = AXI4MasterAgent(axi4_bundle)
         self.attach(AXI4Model())

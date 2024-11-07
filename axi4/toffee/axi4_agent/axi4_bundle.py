@@ -12,8 +12,7 @@ class AXI4BundleW(DecoupledBundle):
 class AXI4BundleB(DecoupledBundle):
     resp, id, user = Signals(3)
 
-class AXI4BundleAR(AXI4BundleAW):
-    ...
+class AXI4BundleAR(AXI4BundleAW): ...
 
 class RBundle(DecoupledBundle):
     resp, data, last, id, user = Signals(5)
