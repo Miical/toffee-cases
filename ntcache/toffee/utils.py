@@ -5,4 +5,3 @@ def replicate_bits(binary_num, replication, num_bits):
         for j in range(replication):
             result = result | (bit << (i * replication + j))
     return result
-
