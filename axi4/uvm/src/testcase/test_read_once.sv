@@ -1,12 +1,12 @@
-`ifndef TEST_RANDOM__SV
-`define TEST_RANDOM__SV
+`ifndef TEST_READ_ONCE__SV
+`define TEST_READ_ONCE__SV
 
-class test_random_sequence extends uvm_sequence #(axi_transaction);
-    `uvm_object_utils(test_random_sequence)
+class test_read_once_sequence extends uvm_sequence #(axi_transaction);
+    `uvm_object_utils(test_read_once_sequence)
 
     axi_transaction tr;
 
-    function new(string name = "test_random");
+    function new(string name = "test_read_once");
         super.new(name);
     endfunction
 
@@ -14,17 +14,15 @@ class test_random_sequence extends uvm_sequence #(axi_transaction);
         if (starting_phase != null)
             starting_phase.raise_objection(this);
 
-        for (int i = 0; i < 1000; i++) begin
-            `uvm_info(get_type_name(), $sformatf("Generating transaction %0d", i), UVM_LOW)
+        for (int i = 0; i < 30000; i++) begin
             `uvm_do_with(tr, {
-                tr.tr_type == axi_transaction::WRITE;
+                tr.tr_type == axi_transaction::READ;
                 tr.addr[2:0] == 0;
-                tr.addr < (32'd4 << 5);
-                tr.len > 0;
-                tr.len <= 8'd11;
+                tr.addr < (32'd1 << 12);
+                tr.addr > 0;
+                tr.len == 1;
             })
 
-            tr.tr_type = axi_transaction::READ;
             `uvm_send(tr)
         end
 
@@ -35,10 +33,10 @@ class test_random_sequence extends uvm_sequence #(axi_transaction);
 endclass
 
 
-class test_random extends base_test;
-    `uvm_component_utils(test_random)
+class test_read_once extends base_test;
+    `uvm_component_utils(test_read_once)
 
-    function new(string name = "test_random", uvm_component parent = null);
+    function new(string name = "test_read_once", uvm_component parent = null);
         super.new(name, parent);
     endfunction
 
@@ -47,7 +45,7 @@ class test_random extends base_test;
         uvm_config_db#(uvm_object_wrapper)::set(this,
                                                 "env.axi_agent.sqr.main_phase",
                                                 "default_sequence",
-                                                test_random_sequence::type_id::get());
+                                                test_read_once_sequence::type_id::get());
     endfunction
 endclass
 

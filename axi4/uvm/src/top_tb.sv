@@ -6,7 +6,12 @@ import uvm_pkg::*;
 `include "axi_vip/axi_interface.sv"
 `include "src/env/axi_env.sv"
 `include "src/testcase/base_test.sv"
-`include "src/testcase/test_random.sv"
+`include "src/testcase/test_random_read_and_write.sv"
+`include "src/testcase/test_read_once.sv"
+`include "src/testcase/test_write_once.sv"
+`include "src/testcase/test_read_burst.sv"
+`include "src/testcase/test_write_burst.sv"
+`include "src/testcase/test_read_and_write_same_addr.sv"
 
 module top_tb;
     reg clock;
