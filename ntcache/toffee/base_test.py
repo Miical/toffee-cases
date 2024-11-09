@@ -1,8 +1,6 @@
-import pytest
-from mlvp import *
+import toffee_test
 from UT_Cache import DUTCache
 from ntcache_env import *
-from utils import *
 
 class SimpleBusRam:
     def __init__(self, agent: SimpleBusSlaveAgent):
@@ -12,15 +10,13 @@ class SimpleBusRam:
     async def response_write_burst(self, req):
         addr = req["addr"]
         while (True):
-            data, wmask = req["wdata"], req["wmask"]
-            wmask = replicate_bits(wmask, 8, 8)
+            data, wmask = req["wdata"], replicate_bits(req["wmask"], 8, 8)
             if addr not in self.data:
                 self.data[addr] = 0
             self.data[addr] = (self.data[addr] & (~wmask)) | (data & wmask)
             await self.agent.write_resp()
             if (req["cmd"] == SimpleBusCMD.WriteLast):
                 break
-
             req = await self.agent.get_req()
             addr += 8
 
@@ -54,24 +50,18 @@ class SimpleBusRam:
         while True:
             await self.response_once()
 
-@pytest.fixture
-def start_func(mlvp_pre_request: PreRequest):
+@toffee_test.fixture
+async def start_func(toffee_request: toffee_test.ToffeeRequest):
     setup_logging(ERROR)
-    dut = mlvp_pre_request.create_dut(DUTCache, "clock", "Cache.fst")
-
+    dut = toffee_request.create_dut(DUTCache, "clock")
     async def start_code():
         start_clock(dut)
         dut.reset.value = 1
-        await triggers.ClockCycles(dut, 1)
+        await ClockCycles(dut, 1)
         dut.reset.value = 0
-        dut.io_out_mem_req_ready.value = 1
-        dut.io_in_resp_ready.value = 1
-        await triggers.AllValid(dut.io_in_req_ready)
-
         env = NTCacheEnv(dut)
         async with Executor(exit="none") as exec:
             exec(SimpleBusRam(env.mem_agent).work(),sche_group="mmio")
             exec(SimpleBusRam(env.mmio_agent).work(), sche_group="mem")
-
         return env
     return start_code

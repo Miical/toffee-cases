@@ -1,16 +1,31 @@
-from simple_bus_agent import *
-from cache_ref import CacheRefModel
-from mlvp.env import *
+from simplebus_agent import *
+from utils import *
+
+class CacheRefModel(Model):
+    def __init__(self):
+        super().__init__()
+        self.data = {}
+
+    @driver_hook(agent_name="in_agent")
+    def read(self, addr, size, user=0):
+        addr, rdata = addr & 0xfffffff8, 0
+        if addr in self.data:
+            rdata = self.data[addr]
+        return {"rdata": rdata, "user": user}
+
+    @driver_hook(agent_name="in_agent")
+    def write(self, addr, size, wdata, wmask, user=0):
+        addr = addr & 0xfffffff8
+        wmask = replicate_bits(wmask, 8, 8)
+        if addr not in self.data:
+            self.data[addr] = 0
+        self.data[addr] = (self.data[addr] & (~wmask)) | (wdata & wmask)
+        return {"user": user}
 
 class NTCacheEnv(Env):
     def __init__(self, dut):
         super().__init__()
-        in_bundle = SimpleBusBundle.from_prefix("io_in_").set_name("in").bind(dut)
-        mem_bundle = SimpleBusBundle.from_prefix("io_out_mem_").set_name("mem").bind(dut)
-        mmio_bundle = SimpleBusBundle.from_prefix("io_mmio_").set_name("mmio").bind(dut)
-
-        self.in_agent = SimpleBusMasterAgent(in_bundle)
-        self.mem_agent = SimpleBusSlaveAgent(mem_bundle)
-        self.mmio_agent= SimpleBusSlaveAgent(mmio_bundle)
-
+        self.in_agent = SimpleBusMasterAgent(SimpleBusBundle.from_prefix("io_in_").set_name("in").bind(dut))
+        self.mem_agent = SimpleBusSlaveAgent(SimpleBusBundle.from_prefix("io_out_mem_").set_name("mem").bind(dut))
+        self.mmio_agent= SimpleBusSlaveAgent(SimpleBusBundle.from_prefix("io_mmio_").set_name("mmio").bind(dut))
         self.attach(CacheRefModel())

@@ -1,10 +1,9 @@
 import random
 from base_test import *
 
-@pytest.mark.mlvp_async
+@toffee_test.testcase
 async def test_read(start_func):
     env: NTCacheEnv = await start_func()
-
     for _ in range(1000):
         await env.in_agent.read(
             addr = random.randint(0, 0xffffffff),
@@ -12,10 +11,9 @@ async def test_read(start_func):
             user = random.randint(0, 0xff),
         )
 
-@pytest.mark.mlvp_async
+@toffee_test.testcase
 async def test_write(start_func):
     env: NTCacheEnv = await start_func()
-
     for _ in range(1000):
         await env.in_agent.write(
             addr = random.randint(0, 0xffffffff),
@@ -25,10 +23,9 @@ async def test_write(start_func):
             user = random.randint(0, 0xff),
         )
 
-@pytest.mark.mlvp_async
+@toffee_test.testcase
 async def test_read_write_same_addr(start_func):
     env: NTCacheEnv = await start_func()
-
     for _ in range(1000):
         addr = random.randint(0, 0xffffffff)
         await env.in_agent.read(
@@ -36,7 +33,6 @@ async def test_read_write_same_addr(start_func):
             size = 4,
             user = random.randint(0, 0xff),
         )
-
         await env.in_agent.write(
             addr = addr,
             size = 4,
