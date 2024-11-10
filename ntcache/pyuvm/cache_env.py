@@ -43,12 +43,11 @@ class CacheScoreboard(uvm_scoreboard):
     class RespAnalysisExport(uvm_analysis_export):
         def __init__(self, name, parent, std_item):
             super().__init__(name, parent)
-
+            self.logger.setLevel(logging.ERROR)
             self.std_item = std_item
 
         def write(self, seq_item):
             assert seq_item.tr_type == SimplebusSeqItemType.RESP
-
             if self.std_item != seq_item:
                 self.logger.error("SCOREBOARD_MISMATCH", f"Expected: {self.std_item}, Got: {seq_item}")
             else:

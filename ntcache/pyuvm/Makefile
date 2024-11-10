@@ -1,10 +1,10 @@
 CWD=$(shell pwd)
 export COCOTB_REDUCED_LOG_FMT = 1
-SIM ?= vcs
+SIM ?= verilator
 TOPLEVEL_LANG ?= verilog
 VERILOG_SOURCES =$(CWD)/hdl/Cache.v
 
-WAVES=VCD
+WAVES=FST
 MODULE := testbench
 TOPLEVEL = Cache
 GHDL_ARGS := --ieee=synopsys

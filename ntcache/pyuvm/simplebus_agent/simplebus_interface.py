@@ -1,6 +1,5 @@
 from typing import Any
 
-
 class SimpleBusCMD():
     Read, Write, ReadBurst, WriteBurst, WriteLast, Probe, Prefetch = 0, 1, 2, 3, 7, 8, 4
     ReadLast, WriteResp, ProbeHit, ProbMiss = 6, 5, 12, 8

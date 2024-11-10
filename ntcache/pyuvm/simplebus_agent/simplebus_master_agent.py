@@ -20,8 +20,8 @@ class SimplebusMasterDriver(uvm_driver):
         self.bif.req_wmask.value = seq_item.req_wmask
         self.bif.req_wdata.value = seq_item.req_wdata
         self.bif.req_user.value = seq_item.req_user
-
         await RisingEdge(self.bif.clock)
+
         self.bif.req_valid.value = 0
         await RisingEdge(self.bif.clock)
 
@@ -71,7 +71,6 @@ class SimplebusMasterMonitor(uvm_monitor):
             item.req_wdata = int(self.bif.req_wdata.value)
             item.req_user = int(self.bif.req_user.value)
             self.req_ap.write(item)
-
             await RisingEdge(self.bif.clock)
 
     async def collect_resp_pkt(self):
@@ -91,7 +90,6 @@ class SimplebusMasterMonitor(uvm_monitor):
                 item.resp_rdata.append(int(self.bif.resp_rdata.value))
             item.resp_user = int(self.bif.resp_user.value)
             self.resp_ap.write(item)
-
             await RisingEdge(self.bif.clock)
 
     async def run_phase(self):

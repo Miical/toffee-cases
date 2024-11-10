@@ -1,27 +1,12 @@
 import cocotb.clock
 import pyuvm
-import random
+from random import randint, choice
 import cocotb
 from pyuvm import *
 from simplebus_agent import SimplebusInterface, SimpleBusCMD, SimplebusSeqItemType, SimplebusSeqItem
 from cache_env import CacheEnv
 from cocotb.triggers import *
 from utils import replicate_bits
-
-class RandomSeq(uvm_sequence):
-    async def body(self):
-        for _ in range(1000):
-            seq_item = SimplebusSeqItem("RandomSeqItem")
-            seq_item.randomize()
-            seq_item.tr_type = SimplebusSeqItemType.REQ
-            seq_item.req_cmd = random.choice([SimpleBusCMD.Read, SimpleBusCMD.Write])
-            seq_item.req_wmask = 0xff
-            seq_item.req_addr = random.randint(0, 2**28-1) >> 3 << 3
-
-            await self.start_item(seq_item)
-            await self.finish_item(seq_item)
-            await self.get_response()
-
 
 class MemorySeq(uvm_sequence):
     def __init__(self, name):
@@ -98,34 +83,7 @@ class MemorySeq(uvm_sequence):
             await self.response_once()
 
 async def init_dut(dut):
-    dut.io_in_req_valid.value = 0
-    dut.io_in_req_bits_addr.value = 0
-    dut.io_in_req_bits_size.value = 0
-    dut.io_in_req_bits_cmd.value = 0
-    dut.io_in_req_bits_wmask.value = 0
-    dut.io_in_req_bits_wdata.value = 0
-    dut.io_in_req_bits_user.value = 0
-    dut.io_in_resp_ready.value = 0
-
-    dut.io_out_mem_req_ready.value = 0
-    dut.io_out_mem_resp_valid.value = 0
-    dut.io_out_mem_resp_bits_cmd.value = 0
-    dut.io_out_mem_resp_bits_rdata.value = 0
-
-    dut.io_mmio_req_ready.value = 0
-    dut.io_mmio_resp_valid.value = 0
-    dut.io_mmio_resp_bits_cmd.value = 0
-    dut.io_mmio_resp_bits_rdata.value = 0
-
-    dut.io_out_coh_resp_ready.value = 0
-    dut.io_out_coh_req_valid.value = 0
-    dut.io_out_coh_req_bits_addr.value = 0
-    dut.io_out_coh_req_bits_size.value = 0
-    dut.io_out_coh_req_bits_cmd.value = 0
-    dut.io_out_coh_req_bits_wmask.value = 0
-    dut.io_out_coh_req_bits_wdata.value = 0
     dut.io_flush.value = 0
-
     dut.reset.value = 1
     await RisingEdge(dut.clock)
     dut.reset.value = 0
@@ -133,16 +91,13 @@ async def init_dut(dut):
         await RisingEdge(dut.clock)
 
 async def generate_clock(dut):
-    """Generate clock pulses."""
-
     while True:
         dut.clock.value = 0
         await Timer(10000, units="ns")
         dut.clock.value = 1
         await Timer(10000, units="ns")
 
-@pyuvm.test()
-class AdderRandomTest(uvm_test):
+class BaseTest(uvm_test):
     def build_phase(self):
         self.dut = cocotb.top
         self.in_if = SimplebusInterface({
@@ -202,21 +157,150 @@ class AdderRandomTest(uvm_test):
         self.env = CacheEnv("env", self)
 
     def end_of_elaboration_phase(self):
-        self.random_seq = RandomSeq.create("random_seq")
         self.mem_seq = MemorySeq.create("mem_seq")
         self.mmio_seq = MemorySeq.create("mmio_seq")
 
     async def run_phase(self):
-        self.raise_objection()
         cocotb.start_soon(generate_clock(cocotb.top))
         await init_dut(cocotb.top)
-
-        in_seqr = ConfigDB().get(self, "env.in_agent.seqr", "SEQR")
         mem_seqr = ConfigDB().get(self, "env.mem_agent.seqr", "SEQR")
         mmio_seqr = ConfigDB().get(self, "env.mmio_agent.seqr", "SEQR")
-
         cocotb.start_soon(self.mem_seq.start(mem_seqr))
         cocotb.start_soon(self.mmio_seq.start(mmio_seqr))
+
+class ReadSequence(uvm_sequence):
+    async def body(self):
+        for _ in range(25000):
+            seq_item = SimplebusSeqItem("RandomSeqItem")
+            seq_item.randomize()
+            seq_item.tr_type = SimplebusSeqItemType.REQ
+            seq_item.req_cmd = SimpleBusCMD.Read
+            await self.start_item(seq_item)
+            await self.finish_item(seq_item)
+            await self.get_response()
+
+@pyuvm.test()
+class TestRead(BaseTest):
+    def end_of_elaboration_phase(self):
+        super().end_of_elaboration_phase()
+        self.random_seq = ReadSequence.create("random_seq")
+
+    async def run_phase(self):
+        self.raise_objection()
+        await super().run_phase()
+        in_seqr = ConfigDB().get(self, "env.in_agent.seqr", "SEQR")
         await self.random_seq.start(in_seqr)
         self.drop_objection()
 
+class WriteSequence(uvm_sequence):
+    async def body(self):
+        for _ in range(10000):
+            seq_item = SimplebusSeqItem("RandomSeqItem")
+            seq_item.randomize()
+            seq_item.tr_type = SimplebusSeqItemType.REQ
+            seq_item.req_cmd = SimpleBusCMD.Write
+            await self.start_item(seq_item)
+            await self.finish_item(seq_item)
+            await self.get_response()
+
+@pyuvm.test()
+class TestWrite(BaseTest):
+    def end_of_elaboration_phase(self):
+        super().end_of_elaboration_phase()
+        self.random_seq = WriteSequence.create("random_seq")
+
+    async def run_phase(self):
+        self.raise_objection()
+        await super().run_phase()
+        in_seqr = ConfigDB().get(self, "env.in_agent.seqr", "SEQR")
+        await self.random_seq.start(in_seqr)
+        self.drop_objection()
+
+class RandomReadWriteSequence(uvm_sequence):
+    async def body(self):
+        for _ in range(15000):
+            seq_item = SimplebusSeqItem("RandomSeqItem")
+            seq_item.randomize()
+            seq_item.tr_type = SimplebusSeqItemType.REQ
+            if choice([True, False]):
+                seq_item.req_cmd = SimpleBusCMD.Read
+            else:
+                seq_item.req_cmd = SimpleBusCMD.Write
+            await self.start_item(seq_item)
+            await self.finish_item(seq_item)
+            await self.get_response()
+
+@pyuvm.test()
+class TestRandomReadWrite(BaseTest):
+    def end_of_elaboration_phase(self):
+        super().end_of_elaboration_phase()
+        self.random_seq = RandomReadWriteSequence.create("random_seq")
+
+    async def run_phase(self):
+        self.raise_objection()
+        await super().run_phase()
+        in_seqr = ConfigDB().get(self, "env.in_agent.seqr", "SEQR")
+        await self.random_seq.start(in_seqr)
+        self.drop_objection()
+
+class ReadWriteSameAddrSequence(uvm_sequence):
+    async def body(self):
+        for _ in range(8000):
+            seq_item = SimplebusSeqItem("RandomSeqItem")
+            seq_item.randomize()
+            seq_item.tr_type = SimplebusSeqItemType.REQ
+            seq_item.req_cmd = SimpleBusCMD.Write
+            await self.start_item(seq_item)
+            await self.finish_item(seq_item)
+            await self.get_response()
+
+            seq_item.tr_type = SimplebusSeqItemType.REQ
+            seq_item.req_cmd = SimpleBusCMD.Read
+            await self.start_item(seq_item)
+            await self.finish_item(seq_item)
+            await self.get_response()
+
+@pyuvm.test()
+class TestReadWriteSameAddr(BaseTest):
+    def end_of_elaboration_phase(self):
+        super().end_of_elaboration_phase()
+        self.random_seq = ReadWriteSameAddrSequence.create("random_seq")
+
+    async def run_phase(self):
+        self.raise_objection()
+        await super().run_phase()
+        in_seqr = ConfigDB().get(self, "env.in_agent.seqr", "SEQR")
+        await self.random_seq.start(in_seqr)
+        self.drop_objection()
+
+class ReadWriteSameGroupSequence(uvm_sequence):
+    async def body(self):
+        for _ in range(60):
+            for group in range(1<<7):
+                seq_item = SimplebusSeqItem("RandomSeqItem")
+                seq_item.randomize()
+                seq_item.tr_type = SimplebusSeqItemType.REQ
+                seq_item.req_cmd = SimpleBusCMD.Write
+                seq_item.req_addr = (randint(1, (1<<19)-1)<<13) + (group<<6) + randint(0, (1<<6)-1)
+                await self.start_item(seq_item)
+                await self.finish_item(seq_item)
+                await self.get_response()
+
+                seq_item.tr_type = SimplebusSeqItemType.REQ
+                seq_item.req_cmd = SimpleBusCMD.Read
+                await self.start_item(seq_item)
+                await self.finish_item(seq_item)
+                await self.get_response()
+
+@pyuvm.test()
+class TestReadWriteSameGroup(BaseTest):
+    def end_of_elaboration_phase(self):
+        super().end_of_elaboration_phase()
+        self.random_seq = ReadWriteSameGroupSequence.create("random_seq")
+
+    async def run_phase(self):
+        self.raise_objection()
+        await super().run_phase()
+        in_seqr = ConfigDB().get(self, "env.in_agent.seqr", "SEQR")
+        await self.random_seq.start(in_seqr)
+        self.drop_objection()
