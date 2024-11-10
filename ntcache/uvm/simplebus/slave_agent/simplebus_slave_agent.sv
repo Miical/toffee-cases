@@ -7,9 +7,6 @@
 class simplebus_slave_agent extends uvm_agent;
     simplebus_slave_sequencer sqr;
     simplebus_slave_driver drv;
-    // bus_monitor mon;
-
-    // uvm_analysis_port #(bus_seq_item) ap;
 
     function new(string name, uvm_component parent);
         super.new(name, parent);
@@ -23,7 +20,6 @@ class simplebus_slave_agent extends uvm_agent;
             sqr = simplebus_slave_sequencer::type_id::create("sqr", this);
             drv = simplebus_slave_driver::type_id::create("drv", this);
         end
-        // mon = bus_monitor::type_id::create("mon", this);
     endfunction
 
     virtual function void connect_phase(uvm_phase phase);
@@ -31,7 +27,6 @@ class simplebus_slave_agent extends uvm_agent;
         if (is_active == UVM_ACTIVE) begin
             drv.seq_item_port.connect(sqr.seq_item_export);
         end
-        // ap = mon.ap;
     endfunction
 
     `uvm_component_utils(simplebus_slave_agent)

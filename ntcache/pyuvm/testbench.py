@@ -275,8 +275,8 @@ class TestReadWriteSameAddr(BaseTest):
 
 class ReadWriteSameGroupSequence(uvm_sequence):
     async def body(self):
-        for _ in range(60):
-            for group in range(1<<7):
+        for group in range(1<<7):
+            for _ in range(60):
                 seq_item = SimplebusSeqItem("RandomSeqItem")
                 seq_item.randomize()
                 seq_item.tr_type = SimplebusSeqItemType.REQ

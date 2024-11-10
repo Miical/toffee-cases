@@ -14,15 +14,11 @@ class test_write_sequence extends uvm_sequence #(simplebus_item);
         if (starting_phase != null)
             starting_phase.raise_objection(this);
 
-        for (int i = 0; i < 1000; i++) begin
+        for (int i = 0; i < 10000; i++) begin
             `uvm_do_with(tr, {
                 tr_type         == simplebus_item::REQ;
                 req_cmd         == WRITE_CMD;
-                req_addr[31:30] != 2'b01;
-                req_addr[31:28] != 4'b0011;
             });
-            `uvm_info("in_seq", "send transaction", UVM_HIGH);
-
             get_response(rsp);
         end
 

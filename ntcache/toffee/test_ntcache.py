@@ -27,14 +27,14 @@ async def test_read_write_same_addr(start_func):
     env: NTCacheEnv = await start_func()
     for _ in range(8000):
         addr = randint(0, (1<<32)-1)
-        await env.in_agent.read(addr, 4, randint(0, 0xff))
         await env.in_agent.write(addr, 4, randint(0, (1<<64)-1), randint(0, 0xff), randint(0, 0xff))
+        await env.in_agent.read(addr, 4, randint(0, 0xff))
 
 @toffee_test.testcase
 async def test_read_write_same_group(start_func):
     env: NTCacheEnv = await start_func()
-    for _ in range(60):
-        for group in range(1<<7):
+    for group in range(1<<7):
+        for _ in range(60):
             addr = (randint(1, (1<<19)-1)<<13) + (group<<6) + randint(0, (1<<6)-1)
-            await env.in_agent.read(addr, 4, randint(0, 0xff))
             await env.in_agent.write(addr, 4, randint(0, (1<<64)-1), randint(0, 0xff), randint(0, 0xff))
+            await env.in_agent.read(addr, 4, randint(0, 0xff))
