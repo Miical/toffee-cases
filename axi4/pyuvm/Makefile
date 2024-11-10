@@ -5,7 +5,7 @@ SIM_ARGS ?= --x-initial 0
 TOPLEVEL_LANG ?= verilog
 VERILOG_SOURCES =$(CWD)/hdl/AXI4RAM.v
 
-WAVES=VCD
+WAVES=FST
 MODULE := testbench
 TOPLEVEL = AXI4RAM
 GHDL_ARGS := --ieee=synopsys

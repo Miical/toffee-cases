@@ -7,10 +7,10 @@ WAVE_FORMAT = fst
 TARGET_LANG = python
 
 run:
-	pytest --toffee-report -n=6 -sv .
+	pytest -n=6 .
 
 dut:
-	$(PICKER) export --autobuild=false $(VSRC_DIR)/$(NAME).v \
+	$(PICKER) export --autobuild=true $(VSRC_DIR)/$(NAME).v \
 		-w $(NAME).$(WAVE_FORMAT) \
 		--sname $(NAME) \
 		--tdir picker_out_$(NAME_L) \
