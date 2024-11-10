@@ -19,5 +19,8 @@ dut:
 		-e -c
 	@cp -r picker_out_$(NAME_L)/UT_$(NAME) .
 
+stat:
+	cloc --include-lang=Python ./*.py
+
 clean:
 	rm -rf UT_$(NAME) picker_out_$(NAME_L) reports *.fst *.fst.hier *.dat

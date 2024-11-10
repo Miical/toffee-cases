@@ -36,8 +36,8 @@ run:
 run_gui:
 	@cd build/ && ./simv -gui $(SIMV_OPTS) +UVM_TESTNAME=$(TESTCASE) &
 
-stat: clean
-	@find . -name '*.sv' | xargs wc -l
+stat:
+	cloc --include-lang=Verilog-SystemVerilog adder_ports/ src/
 
 clean:
 	@rm -rf build/

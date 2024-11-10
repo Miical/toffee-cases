@@ -7,7 +7,7 @@ WAVE_FORMAT = fst
 TARGET_LANG = python
 
 run:
-	pytest -sv -n 5 .
+	pytest -sv .
 
 dut:
 	$(PICKER) export --autobuild=true $(VSRC_DIR)/$(NAME).v \
@@ -18,6 +18,9 @@ dut:
 		--sim $(SIM) \
 		-e -c
 	@cp -r picker_out_$(NAME_L)/UT_$(NAME) .
+
+stat:
+	cloc --include-lang=Python simplebus_agent/ ./*.py
 
 clean:
 	rm -rf UT_$(NAME) picker_out_$(NAME_L) reports *.fst *.fst.hier *.dat

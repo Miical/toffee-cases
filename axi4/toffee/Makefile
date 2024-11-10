@@ -18,5 +18,8 @@ dut:
 		--sim $(SIM) \
 		-e -c
 
+stat:
+	cloc --include-lang=Python axi4_agent/ ./*.py
+
 clean:
 	rm -rf UT_$(NAME) picker_out_$(NAME_L) reports *.fst *.fst.hier *.dat
