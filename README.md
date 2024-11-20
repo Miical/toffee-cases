@@ -19,11 +19,11 @@
 | Project | Compile Time | Running Time |
 |---------|--------------|--------------|
 | adder-toffee | 9.26s | 5.48s |
-| adder-pyuvm  | ~1s | 37.21s |
+| adder-pyuvm  | 0.22s | 37.21s |
 | adder-uvm    | 4.38s | 8.67s |
 | axi4-toffee  | 10.04s | 7.54s |
-| axi4-pyuvm   | ~1s | 101.63s |
+| axi4-pyuvm   | 0.23s | 101.63s |
 | axi4-uvm     | 4.59s | 15.42s |
 | ntcache-toffee | 11.97s | 36.14s |
-| ntcache-pyuvm  | ~1s | 310.08s |
+| ntcache-pyuvm  | 0.28s | 310.08s |
 | ntcache-uvm    | 4.95s | 53.61s |
