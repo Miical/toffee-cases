@@ -2,7 +2,7 @@
 import random
 from toffee import *
 import toffee_test
-from UT_AXI4RAM import DUTAXI4RAM
+from picker_out_axi4ram import DUTAXI4RAM
 from axi4_env import AXI4Bundle, AXI4Env
 from hypothesis import given, settings, HealthCheck, strategies as st
 

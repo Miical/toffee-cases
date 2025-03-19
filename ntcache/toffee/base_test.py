@@ -1,5 +1,5 @@
 import toffee_test
-from UT_Cache import DUTCache
+from picker_out_cache import DUTCache
 from ntcache_env import *
 
 class SimpleBusRam:
@@ -54,12 +54,12 @@ class SimpleBusRam:
 async def start_func(toffee_request: toffee_test.ToffeeRequest):
     setup_logging(ERROR)
     dut = toffee_request.create_dut(DUTCache, "clock")
+    start_clock(dut)
+    env = NTCacheEnv(dut)
     async def start_code():
-        start_clock(dut)
         dut.reset.value = 1
         await ClockCycles(dut, 1)
         dut.reset.value = 0
-        env = NTCacheEnv(dut)
         async with Executor(exit="none") as exec:
             exec(SimpleBusRam(env.mem_agent).work(),sche_group="mmio")
             exec(SimpleBusRam(env.mmio_agent).work(), sche_group="mem")

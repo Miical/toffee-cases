@@ -1,7 +1,7 @@
 from toffee import *
 import toffee_test
 from random import randint
-from UT_Adder import DUTAdder
+from picker_out_adder import DUTAdder
 from env import AdderEnv, AdderBundle
 
 @toffee_test.testcase

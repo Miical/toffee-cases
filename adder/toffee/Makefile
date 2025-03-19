@@ -17,7 +17,6 @@ dut:
 		--lang $(TARGET_LANG) \
 		--sim $(SIM) \
 		-e -c
-	@cp -r picker_out_$(NAME_L)/UT_$(NAME) .
 
 stat:
 	cloc --include-lang=Python ./*.py
